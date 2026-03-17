@@ -1,50 +1,64 @@
-import { RRLIB, PalLib } from "../../js/pallib.js"
-
 class CommonDemoARI {
     constructor(options) {
         this.ros = options.ros;
-        this.pal_lib = new PalLib();
-        this.demo_language = "en_GB";
+        // RIMOSSO: this.pal_lib = new PalLib(); <-- Qui stava l'errore
+        
+        this.demo_language = "it_IT";
         this.ari_volume = 0;
 
-        // ROS parameter for the volume
-        this.volume_adjust = new RRLIB.Param({
+        // ROS parameter for the volume (ROSLIB puro)
+        this.volume_adjust = new ROSLIB.Param({
             ros: this.ros,
             name: 'volume'
         });
 
         // Topic for the data log
-        this.data_logger = new RRLIB.Topic({
+        this.data_logger = new ROSLIB.Topic({
             ros: this.ros,
-            name: 'data_logger'
+            name: 'data_logger',
+            messageType: 'std_msgs/String'
+        });
+
+        // Topic per far parlare ARI (Sostituisce PalLib.say)
+        this.tts_topic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/tts/goal',
+            messageType: 'pal_interaction_msgs/TtsActionGoal'
         });
 
         // Topic for the intents (movement/navigation, ...)
-        this.user_intent = new RRLIB.Topic({
+        this.user_intent = new ROSLIB.Topic({
             ros: this.ros,
-            name: 'intents'
+            name: 'intents',
+            messageType: 'pal_web_msgs/WebGoTo' // o il tipo corretto che usi
         });
     }
 
     init(cb) {
-        this.pal_lib.init();
+        // RIMOSSO: this.pal_lib.init(); <-- Non serve più
         
         $(".main-container").fadeIn("slow");
         
-        // volume slider initialization
         this.volumeSlider();
-
-        // status bar initialization
         this.updateStatusBar();
         
-        // final callback that will execute the script of the various pages
         if (cb) cb();
     }
 
-    // Function to make ARI talk
+    // NUOVA FUNZIONE SAY (Usa ROS invece di PalLib)
     say(text_to_say) {
-        if (text_to_say !== "")
-            this.pal_lib.say(text_to_say, this.demo_language, (id) => {});
+        if (text_to_say !== "") {
+            const msg = new ROSLIB.Message({
+                goal: {
+                    rawtext: {
+                        text: text_to_say,
+                        lang_id: this.demo_language
+                    }
+                }
+            });
+            this.tts_topic.publish(msg);
+            console.log("ARI dice: " + text_to_say);
+        }
     }
 
     // Volume slider handler
@@ -140,14 +154,14 @@ class CommonDemoARI {
 
     subscribeBattery() {
         // Topic to get the battery level
-        const batteryTopic = new RRLIB.Topic({
+        const batteryTopic = new ROSLIB.Topic({
             ros: this.ros,
             name: '/power/battery_level',
             messageType: 'std_msgs/Float32'
         });
 
         // Topic to get if ARI's battery is charging to display it on the status bar
-        const chargingTopic = new RRLIB.Topic({
+        const chargingTopic = new ROSLIB.Topic({
             ros: this.ros,
             name: '/power/is_charging',
             messageType: 'std_msgs/Bool'
@@ -200,5 +214,3 @@ class CommonDemoARI {
         }
     }
 }
-
-export default CommonDemoARI;

@@ -1,46 +1,75 @@
-import '../../tools/js/lib/jquery.min.js';
-import { RRLIB } from '../../js/pallib.js';
-import CommonDemoARI from '../../tools/js/core.js';
-
 class PageManager {
   constructor() {
     this.url = "ws://" + window.location.hostname + ":9090";
-    this.ros = new RRLIB.Ros({
+    this.ros = new ROSLIB.Ros({
       url: this.url
     });
-    this.common_demo = new CommonDemoARI({
-      ros: this.ros
+
+    this.ros.on('connection', () => {
+      console.log('Connesso a ROS su ' + this.url);
+      
+      this.common_demo = new CommonDemoARI({
+        ros: this.ros
+      });
+
+      this.init(); // Chiama l'init che ora attiverà il parlato
+    });
+
+    this.ros.on('error', (error) => {
+      console.error('Errore ROS:', error);
     });
   }
+
   init() {
     this.common_demo.init(() => {
+      console.log("CommonDemoARI pronto.");
+      // CONTROLLO FONDAMENTALE: 
+      // Se nella pagina dei dettagli è stata definita la funzione setupSpeech, la eseguiamo.
+      if (typeof window.setupSpeech === 'function') {
+        window.setupSpeech();
+      }
     });
   }
 }
 
-let page_manager = new PageManager();
 
 $(document).ready(function() {
+    const page_manager = new PageManager();
 
-    // Mock data just to test function and layout, they will be replaced with real data in the end
+    // Sostituisci il click del tasto Back con questo:
+    $(".control-btn[title='Back']").on("click", function() {
+      const urlParams = new URLSearchParams(window.location.search);
+    
+      // Se abbiamo un ID nell'URL, significa che siamo nel dettaglio, quindi torniamo alla lista
+      if (urlParams.has('id')) {
+          window.location.href = 'index.html';
+      } else {
+          // Altrimenti siamo nella lista e torniamo al menu principale
+          window.location.href = "../unitn_main_menu/index.html";
+      }
+    });
+
+    $(".control-btn[title='Home']").on("click", function() {
+        window.location.href = "../unitn_main_menu/index.html";
+    });
     const newsData = {
         "1": {
             id: "1",
             date: "06 MAR 2026",
             title: "News 1",
             preview: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod...",
-            fullText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+            fullText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
         },
         "2": {
             id: "2",
             date: "04 MAR 2026",
             title: "News 2",
             preview: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod...",
-            fullText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+            fullText: "Testo completo della seconda news."
         }
     };
 
-    // Code to load the news in the list by loading it one by one in the HTML page
+    // 2. Rendering Lista (Solo se siamo in index.html)
     const container = $(".news-container");
     if (container.length) {
         container.empty();
@@ -58,7 +87,7 @@ $(document).ready(function() {
         });
     }
 
-    // Logic to open the detail of a news in a new HTML page
+    // 3. Rendering Dettaglio (Solo se siamo in news_detail.html)
     const urlParams = new URLSearchParams(window.location.search);
     const newsId = urlParams.get('id');
     if (newsId && newsData[newsId]) {
@@ -66,45 +95,12 @@ $(document).ready(function() {
         $("#detail-title").text(currentNews.title);
         $("#detail-date").text(currentNews.date);
         $("#detail-text").text(currentNews.fullText);
-    }
-
-    // ROS initialization to make ARI read the text of the news, moved here because it would block the 
-    // other functions when the ROS is not communicating, later it will be moved 
-    // correctly in the beginning
-    page_manager.init(() => {
-        if (newsId && newsData[newsId]) {
+        
+        window.setupSpeech = function() {
             $("#ari-read-btn").off("click").on("click", function() {
-                const currentNews = newsData[newsId];
                 const speech = "Sure! Here is the news. " + currentNews.title + ". " + currentNews.fullText;
                 page_manager.common_demo.say(speech);
             });
-        }
-    });
-
-  // Back to the previous screen
-  $(".control-btn[title='Back']").on("click", function() {
-
-    // "If" branch to understand how the "back" button should work, to go back to the news list or to 
-    // go back to the main menu
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('id')) {
-        // If we are in a news detail, we go back to the list
-        window.history.back();
-    } else {
-        //Else, we go back to the main menu
-        window.location.href = "../unitn_main_menu/index.html";
+        };
     }
-  });
-
-  // Back to the home screen
-  $(".control-btn[title='Home']").on("click", function() {
-
-    // The navigation between the pages is usually handled by some ROS functions, but while
-    // working only on the layout these are not usable, so here they are commented
-    // page_manager.common_demo.logBack("back_to_unitn_menu");
-    // page_manager.common_demo.sendRobotIntentInput("unitn_main_menu");
-    // parent.switchConfig("unitn_main_menu");
-
-    window.location.href = "../unitn_main_menu/index.html";
-  });
 });

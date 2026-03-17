@@ -1,65 +1,73 @@
-import '../../tools/js/lib/jquery.min.js';
-import { RRLIB } from '../../js/pallib.js';
-import CommonDemoARI from '../../tools/js/core.js';
-
 class PageManager {
-  constructor() {
-    this.url = "ws://" + window.location.hostname + ":9090";
-    this.ros = new RRLIB.Ros({
-      url: this.url
-    });
-    this.common_demo = new CommonDemoARI({
-      ros: this.ros
-    });
-  }
-  init() {
-    this.common_demo.init(() => {
-    });
-  }
+    constructor() {
+        // 1. Calcolo dell'IP
+        // const robotIP = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+        //                 ? "10.160.50.11" 
+        //                 : window.location.hostname;
+
+        // this.url = "ws://" + robotIP + ":9090";
+       this.url = "ws://10.160.50.11:9090";
+
+        // 2. Connessione a ROS (usa ROSLIB perché lo carichi nell'HTML)
+        this.ros = new ROSLIB.Ros({
+            url: this.url 
+        });
+
+        // 3. Evento di connessione
+        this.ros.on('connection', () => {
+            console.log('*** ROS CONNESSO a ' + this.url + ' ***');
+            
+            // Inizializziamo la logica comune passando l'oggetto ros
+            this.common_demo = new CommonDemoARI({
+                ros: this.ros
+            });
+
+            this.init();
+        });
+
+        this.ros.on('error', (error) => {
+            console.error('ERRORE DI CONNESSIONE ROS:', error);
+        });
+    }
+
+    init() {
+        // Inizializziamo il core (volume, log, ecc.)
+        this.common_demo.init(() => {
+            console.log("CommonDemoARI pronto.");
+            this.setupCamera();
+        });
+    }
+
+    setupCamera() {
+        console.log("Avvio sottoscrizione telecamera...");
+        const imageTopic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/head_front_camera/color/image_raw/compressed',
+            messageType: 'sensor_msgs/CompressedImage'
+        });
+
+        imageTopic.subscribe((message) => {
+            const img = document.getElementById('camera-feed');
+            if (img) {
+                img.src = "data:image/jpeg;base64," + message.data;
+            }
+        });
+    }
 }
 
-let page_manager = new PageManager();
-
-$(document).ready(function() {
-  page_manager.init();
-
-  // To view the images from the camera, we need to use ARI's topics, so we subscribe to the correct
-  // topic. This part is currently commented because it seems that while working on the layout 
-  // the ROS library to communicate with ARI's topics is not provided, but there is only an 
-  // offline version in ../../js/pallib.js
-
-    // const cameraTopic = new RRLIB.Topic({
-    //     ros: page_manager.ros,
-    //     name: '/head_front_camera/color/image_raw/compressed',
-    //     messageType: 'sensor_msgs/CompressedImage'
-    // });
-    // 
-    // cameraTopic.subscribe(function(message) {
-    //     // Usiamo l'ID del tuo HTML: "camera-feed"
-    //     const imageElement = document.getElementById('camera-feed');
-    //     if (imageElement) {
-    //         // ARI invia JPEG, quindi usiamo data:image/jpg
-    //         imageElement.src = 'data:image/jpg;base64,' + message.data;
-    //     }
-    // });
-  
-  
-  // Back to the previous screen
+$(document).ready(() => {
+    const page_manager = new PageManager();
+    // Back to the previous screen
   $(".control-btn[title='Back']").on("click", function() {
 
     // The navigation between the pages is usually handled by some ROS functions, but while
     // working only on the layout these are not usable, so here they are commented
-    // page_manager.common_demo.logBack("back_from_front_cam");
+    // page_manager.common_demo.logBack("back_from_interactions_menu");
     // page_manager.common_demo.sendRobotIntentInput("unitn_main_menu");
     // parent.switchConfig("unitn_main_menu");
 
-    // To make the system work fluidly, we unsubscribe from the camera topic, now commented because 
-    // the ROS library is not reachable
-
-    // cameraTopic.unsubscribe();
-
     window.location.href = "../unitn_main_menu/index.html";
-  });  
+  });
 
   // Back to the home screen
   $(".control-btn[title='Home']").on("click", function() {
@@ -70,11 +78,6 @@ $(document).ready(function() {
     // page_manager.common_demo.sendRobotIntentInput("unitn_main_menu");
     // parent.switchConfig("unitn_main_menu");
 
-    // To make the system work fluidly, we unsubscribe from the camera topic, now commented because 
-    // the ROS library is not reachable
-
-    // cameraTopic.unsubscribe();
-    
     window.location.href = "../unitn_main_menu/index.html";
   });
 });

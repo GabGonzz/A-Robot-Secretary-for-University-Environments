@@ -1,15 +1,21 @@
-import '../../tools/js/lib/jquery.min.js';
-import { RRLIB } from '../../js/pallib.js';
-import CommonDemoARI from '../../tools/js/core.js';
-
 class PageManager {
   constructor() {
     this.url = "ws://" + window.location.hostname + ":9090";
-    this.ros = new RRLIB.Ros({
+    this.ros = new ROSLIB.Ros({
       url: this.url
     });
-    this.common_demo = new CommonDemoARI({
-      ros: this.ros
+    this.ros.on('connection', () => {
+      console.log('Connesso a ROS su ' + this.url);
+      
+      this.common_demo = new CommonDemoARI({
+        ros: this.ros
+      });
+
+      this.init();
+    });
+
+    this.ros.on('error', (error) => {
+      console.error('Errore ROS:', error);
     });
   }
   init() {
@@ -18,11 +24,10 @@ class PageManager {
   }
 }
 
-let page_manager = new PageManager();
 
 $(document).ready(function() {
 
-  page_manager.init();
+  const page_manager = new PageManager();
 
   // Back to the previous screen
   $(".control-btn[title='Back']").on("click", function() {
