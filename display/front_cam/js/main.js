@@ -6,7 +6,7 @@ class PageManager {
         //                 : window.location.hostname;
 
         // this.url = "ws://" + robotIP + ":9090";
-       this.url = "ws://10.160.50.11:9090";
+       this.url = "ws://" + window.location.hostname + ":9090";
 
         // 2. Connessione a ROS (usa ROSLIB perché lo carichi nell'HTML)
         this.ros = new ROSLIB.Ros({

@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ARI UNITN Speech and Dialogue</title>
-    <!-- style and fontawesome icons -->
+    <title>ARI UNITN Room presentation</title>
+
+    <!-- style and fontawsome icons -->
     <link rel="stylesheet" href="../tools/style/style.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- script -->
     <script src="../tools/js/lib/jquery.min.js"></script>
     <script src="../tools/js/lib/roslib.min.js"></script>
-    
+
     <script src="../tools/js/core.js"></script>
 
     <script src="js/main.js"></script>
+
 </head>
-<body>
+<body class="camera-page">
+
     <div class="status-bar">
 
         <div class="status-item" id="status-date">
@@ -58,16 +61,18 @@
 
         <div class="menu-header">
             <h1 class="main-title">
-                <i class="fa-solid fa-comments" style="margin-right: 20px; color: #990000;"></i>
-                Speech & Dialogue
+                <i class="fa-solid fa-chalkboard-user" style="margin-right: 20px; color: #990000;"></i>
+                Room presentation
             </h1>
-            <p class="sub-title">Select an option</p>
         </div>
 
-        <div class="interaction-table">
-            <div class="btn-row-item" id="int_1">What is your name?</div>
-            <div class="btn-row-item" id="int_2">How are you feeling today?</div>
-            <div class="btn-row-item" id="int_3">How is the weather today in Trento?</div>
+        <div class="camera-stream-wrapper">
+            <div class="camera-feed-container" id="video_stream">
+                <video id="room-presentation-video" autoplay muted playsinline loop>
+                    <source src="../tools/assets/video_lab.mp4" type="video/mp4">
+                        Tag video not supported.
+                </video>
+            </div>
         </div>
         
     </div>

@@ -30,6 +30,7 @@ class PageManager {
     });
   }
 
+  // Funzione per eseguire un'animazione
   playAnimation(motionName) {
     console.log("Invio mozione: " + motionName);
     this.playMotionTopic.publish({
@@ -42,6 +43,21 @@ class PageManager {
 
   init() {
     this.common_demo.init(() => {
+      this.common_demo.say("Welcome to our laboratory! On the left, you can see the entrance, while throughout room you can observe many different types of robots. Also, on the right, there are many windows to keep this place bright.");
+
+      // 2. Movimento verso DESTRA (Right) - facciamolo partire quasi subito 
+      // perché nella frase "Welcome..." ARI attira l'attenzione.
+      setTimeout(() => {
+        console.log("Animazione: Show Right");
+        this.playAnimation('show_right');
+      }, 1000); // Parte dopo 1 secondo
+
+      setTimeout(() => {
+        console.log("Animazione: Show Left");
+        this.playAnimation('show_left');
+      }, 10000);
+
+
     });
   }
 }
@@ -51,46 +67,37 @@ $(document).ready(function() {
 
   const page_manager = new PageManager();
 
-  $("#int_1").on("click", function() {
+  const video = document.getElementById('room-presentation-video');
 
-    page_manager.common_demo.say("My name is ARI. What is yours?");
-    page_manager.playAnimation('shake_left');
-    
-  });
-
-  $("#int_2").on("click", function() {
-
-    page_manager.common_demo.say("I am feeling good, thank you. What about you?");
-    page_manager.playAnimation('nod');
-    
-  });
-
-  $("#int_3").on("click", function() {
-
-    page_manager.common_demo.say("Today the weather is sunny in Trento.");
-    page_manager.playAnimation('show_left');
-    
-  }); 
+  // Assicuriamoci che il video parta (alcuni browser bloccano l'autoplay)
+  if (video) {
+    video.play().catch(error => {
+        console.log("Autoplay bloccato, l'utente deve interagire prima: ", error);
+    });
+  }
 
   // Back to the previous screen
   $(".control-btn[title='Back']").on("click", function() {
 
     // The navigation between the pages is usually handled by some ROS functions, but while
     // working only on the layout these are not usable, so here they are commented
-    // page_manager.common_demo.logBack("back_from_speech_menu");
-    // page_manager.common_demo.sendRobotIntentInput("unitn_interactions_menu");
-    // parent.switchConfig("unitn_interactions_menu");
+    // page_manager.common_demo.logBack("back_from_interactions_menu");
+    // page_manager.common_demo.sendRobotIntentInput("unitn_main_menu");
+    // parent.switchConfig("unitn_main_menu");
 
     window.location.href = "../unitn_interactions_menu/index.html";
-  });  
+  });
 
   // Back to the home screen
   $(".control-btn[title='Home']").on("click", function() {
 
+    // The navigation between the pages is usually handled by some ROS functions, but while
+    // working only on the layout these are not usable, so here they are commented
     // page_manager.common_demo.logBack("back_to_unitn_menu");
     // page_manager.common_demo.sendRobotIntentInput("unitn_main_menu");
     // parent.switchConfig("unitn_main_menu");
-    
+
     window.location.href = "../unitn_main_menu/index.html";
   });
+
 });
