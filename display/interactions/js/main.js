@@ -98,6 +98,17 @@ $(document).ready(function() {
       }, 2000);
   });
 
+  $("#wave_btn").on("click", function() {
+    console.log("Richiesta wave_left...");
+    
+    // Su ARI, l'animazione standard si chiama spesso 'handshake'
+    // Se hai un'animazione custom, sostituisci il nome qui sotto
+    page_manager.playAnimation('wave_left');
+    setTimeout(() => {
+        page_manager.common_demo.say("Hello! How are you?");
+      }, 2000);
+  });
+
   $("#show_left_btn").on("click", function() {
     console.log("Esecuzione Show Left...");
     page_manager.playAnimation('show_left');

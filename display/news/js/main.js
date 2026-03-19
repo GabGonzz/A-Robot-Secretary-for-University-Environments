@@ -1,106 +1,143 @@
+const GESTURES = ['dialogue_gesture_1', 'dialogue_gesture_2', 'dialogue_gesture_3'];
+
 class PageManager {
-  constructor() {
-    this.url = "ws://" + window.location.hostname + ":9090";
-    this.ros = new ROSLIB.Ros({
-      url: this.url
-    });
+    constructor() {
+        const robotIP = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+                        ? "10.160.50.11" 
+                        : window.location.hostname;
 
-    this.ros.on('connection', () => {
-      console.log('Connesso a ROS su ' + this.url);
-      
-      this.common_demo = new CommonDemoARI({
-        ros: this.ros
-      });
+        this.url = "ws://" + robotIP + ":9090";
+        this.ros = new ROSLIB.Ros({
+            url: this.url
+        });
 
-      this.init(); // Chiama l'init che ora attiverà il parlato
-    });
+        this.ros.on('connection', () => {
+            console.log('Connesso a ROS su ' + this.url);
+            this.common_demo = new CommonDemoARI({
+                ros: this.ros
+            });
 
-    this.ros.on('error', (error) => {
-      console.error('Errore ROS:', error);
-    });
-  }
+            this.playMotionTopic = new ROSLIB.Topic({
+                ros: this.ros,
+                name: '/play_motion/goal',
+                messageType: 'play_motion_msgs/PlayMotionActionGoal'
+            });
 
-  init() {
-    this.common_demo.init(() => {
-      console.log("CommonDemoARI pronto.");
-      // CONTROLLO FONDAMENTALE: 
-      // Se nella pagina dei dettagli è stata definita la funzione setupSpeech, la eseguiamo.
-      if (typeof window.setupSpeech === 'function') {
-        window.setupSpeech();
-      }
-    });
-  }
-}
+            this.init();
+        });
 
-
-$(document).ready(function() {
-    const page_manager = new PageManager();
-
-    // Sostituisci il click del tasto Back con questo:
-    $(".control-btn[title='Back']").on("click", function() {
-      const urlParams = new URLSearchParams(window.location.search);
-    
-      // Se abbiamo un ID nell'URL, significa che siamo nel dettaglio, quindi torniamo alla lista
-      if (urlParams.has('id')) {
-          window.location.href = 'index.html';
-      } else {
-          // Altrimenti siamo nella lista e torniamo al menu principale
-          window.location.href = "../unitn_main_menu/index.html";
-      }
-    });
-
-    $(".control-btn[title='Home']").on("click", function() {
-        window.location.href = "../unitn_main_menu/index.html";
-    });
-    const newsData = {
-        "1": {
-            id: "1",
-            date: "06 MAR 2026",
-            title: "News 1",
-            preview: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod...",
-            fullText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-        },
-        "2": {
-            id: "2",
-            date: "04 MAR 2026",
-            title: "News 2",
-            preview: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod...",
-            fullText: "Testo completo della seconda news."
-        }
-    };
-
-    // 2. Rendering Lista (Solo se siamo in index.html)
-    const container = $(".news-container");
-    if (container.length) {
-        container.empty();
-        Object.values(newsData).forEach(news => {
-            const cardHtml = `
-                <div class="news-card">
-                    <div class="news-date">${news.date}</div>
-                    <h3>${news.title}</h3>
-                    <p>${news.preview}</p>
-                    <button class="btn-read-more" onclick="window.location.href='news_detail.html?id=${news.id}'">
-                        Read more
-                    </button>
-                </div>`;
-            container.append(cardHtml);
+        this.ros.on('error', (error) => {
+            console.error('Errore ROS:', error);
         });
     }
 
-    // 3. Rendering Dettaglio (Solo se siamo in news_detail.html)
-    const urlParams = new URLSearchParams(window.location.search);
-    const newsId = urlParams.get('id');
-    if (newsId && newsData[newsId]) {
-        const currentNews = newsData[newsId];
-        $("#detail-title").text(currentNews.title);
-        $("#detail-date").text(currentNews.date);
-        $("#detail-text").text(currentNews.fullText);
-        
-        window.setupSpeech = function() {
-            $("#ari-read-btn").off("click").on("click", function() {
-                const speech = "Sure! Here is the news. " + currentNews.title + ". " + currentNews.fullText;
-                page_manager.common_demo.say(speech);
-            });
-        };
+    playAnimation(motionName) {
+        console.log("Invio mozione: " + motionName);
+        this.playMotionTopic.publish({
+            goal: {
+                motion_name: motionName,
+                skip_planning: true
+            }
+        });
     }
+
+    init() {
+        this.common_demo.init(() => {
+            console.log("CommonDemoARI pronto.");
+            if (typeof window.setupSpeech === 'function') {
+                window.setupSpeech();
+            }
+        });
+    }
+
+    playRandomGesture() {
+        const randomIndex = Math.floor(Math.random() * GESTURES.length);
+        const selectedGesture = GESTURES[randomIndex];
+        this.playAnimation(selectedGesture);
+    }
+}
+
+$(document).ready(function() {
+    const page_manager = new PageManager();
+    let moveInterval = null; 
+
+    // Gestione navigazione (Back/Home) - Invariata
+    $(".control-btn[title='Back']").on("click", function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('id')) window.location.href = 'index.html';
+        else window.location.href = "../unitn_main_menu/index.html";
+    });
+    $(".control-btn[title='Home']").on("click", function() {
+        window.location.href = "../unitn_main_menu/index.html";
+    });
+
+    fetch('../tools/assets/news.json')
+        .then(response => response.json())
+        .then(data => {
+            const newsArray = data;
+            
+            // Rendering Lista (Invariato)
+            const container = $(".news-container");
+            if (container.length) {
+                container.empty();
+                newsArray.forEach(news => {
+                    container.append(`
+                        <div class="news-card">
+                            <div class="news-date">${news.date}</div>
+                            <h3>${news.title}</h3>
+                            <p>${news.description}</p>
+                            <button class="btn-read-more" onclick="window.location.href='news_detail.html?id=${news.id}'">Read more</button>
+                        </div>`);
+                });
+            }
+
+            // Rendering Dettaglio
+            const urlParams = new URLSearchParams(window.location.search);
+            const newsId = urlParams.get('id');
+            
+            if (newsId) {
+                const currentNews = newsArray.find(n => n.id === newsId);
+                if (currentNews) {
+                    $("#detail-title").text(currentNews.title);
+                    $("#detail-date").text(currentNews.date);
+                    $("#detail-text").text(currentNews.content);
+                    
+                    window.setupSpeech = function() {
+                        $("#ari-read-btn").off("click").on("click", function() {
+                            if (moveInterval) clearInterval(moveInterval);
+
+                            const speech = "Sure! Here is the news. " + currentNews.title + ". " + currentNews.content;
+                            
+                            // 1. ARI PARLA (Senza callback per evitare blocchi)
+                            page_manager.common_demo.say(speech);
+
+                            // 2. CALCOLO DURATA (Stima: 1 secondo ogni 15 caratteri)
+                            const estimatedDurationMs = (speech.length / 15) * 1000;
+                            console.log("Durata stimata parlato: " + (estimatedDurationMs/1000).toFixed(1) + " secondi");
+
+                            // 3. GESTI CASUALI
+                            page_manager.playRandomGesture(); // Primo gesto subito
+
+                            let startTime = Date.now();
+                            moveInterval = setInterval(() => {
+                                let elapsed = Date.now() - startTime;
+                                
+                                // Continua a muoverti solo se non è passato il tempo stimato
+                                if (elapsed < estimatedDurationMs) {
+                                    page_manager.playRandomGesture();
+                                } else {
+                                    console.log("Fine tempo stimato, fermo i gesti.");
+                                    clearInterval(moveInterval);
+                                    page_manager.playAnimation('nod'); // Gesto finale di chiusura
+                                }
+                            }, 5000); // Un gesto ogni 5 secondi
+                        });
+                    };
+                    
+                    if (page_manager.common_demo && page_manager.common_demo.is_initialized) {
+                        window.setupSpeech();
+                    }
+                }
+            }
+        });
 });
