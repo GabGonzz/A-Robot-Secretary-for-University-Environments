@@ -12,6 +12,7 @@
     
     <script src="../tools/js/core.js"></script>
 
+    <script src="js/config.js"></script>
     <script src="js/main.js"></script>
 </head>
 <body>
@@ -61,13 +62,23 @@
                 <i class="fa-solid fa-comments" style="margin-right: 20px; color: #990000;"></i>
                 Speech & Dialogue
             </h1>
-            <p class="sub-title">Selelect an option</p>
+            <p class="sub-title">Select an option</p>
         </div>
 
         <div class="interaction-table">
             <div class="btn-row-item" id="int_1">What is your name?</div>
             <div class="btn-row-item" id="int_2">How are you feeling today?</div>
-            <div class="btn-row-item" id="int_3">How is the weather today in Trento?</div>
+            <div class="btn-row-item" id="int_3">Where is the BUP library?</div>
+        </div>
+
+        <div class="ai-interaction-container" style="text-align: center; margin-top: 30px;">
+            <p style="color: #444; font-family: sans-serif; margin-bottom: 20px; font-size: 40px; font-weight: bold;">
+                Else ask anything to me:
+            </p>
+
+            <div id="btn-ai-mic" class="control-btn" style="width: 100px; height: 100px; border-radius: 50%; background: #990000; display: flex; align-items: center; justify-content: center; margin: 0 auto; cursor: pointer; transition: all 0.3s;">
+                <i class="fa-solid fa-microphone" style="font-size: 43px; color: white;"></i>
+            </div>
         </div>
         
     </div>

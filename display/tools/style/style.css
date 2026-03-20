@@ -10,7 +10,6 @@ body, html {
     position: relative; 
     display: flex !important;
     flex-direction: column;
-    /* Rimosso justify-content: center per evitare che il flex-grow sposti il titolo in basso */
     align-items: center;
     min-height: 100vh;
     background-color: #ffffff;
@@ -18,10 +17,9 @@ body, html {
     box-sizing: border-box;
 }
 
-/* Titolo: gli diamo un margine top generoso per non finire sotto la barra di stato */
 .menu-header {
     text-align: center;
-    margin-top: 80px; /* Spazio per la status bar e logo */
+    margin-top: 80px;
     margin-bottom: 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     width: 100%;
@@ -307,36 +305,32 @@ body, html {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Modifica specifica per la pagina camera (rimuoviamo il margine negativo che avevamo messo) */
 .camera-page .menu-header {
     margin-top: 80px; 
     margin-bottom: 0px; 
 }
 
-/* Regoliamo anche lo spazio sopra il video per guadagnare spazio */
 .camera-page .camera-stream-wrapper {
-    margin-top: 10px;    /* Ridotto per avvicinarlo al titolo */
+    margin-top: 10px;
 }
 
-/* Wrapper Camera: lo facciamo espandere per occupare il centro */
 .camera-stream-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    flex-grow: 1; /* Occupa tutto lo spazio rimasto centrale */
-    margin-bottom: 40px; /* Spazio dal fondo */
+    flex-grow: 1;
+    margin-bottom: 40px;
 }
 
-/* Il riquadro nero che contiene il video */
 .camera-feed-container {
     position: relative;
-    width: 800px; /* Larghezza fissa generosa per il tablet */
+    width: 800px;
     max-width: 90%;
-    aspect-ratio: 4 / 3; /* Formato standard della maggior parte delle cam ROS */
+    aspect-ratio: 4 / 3;
     background-color: #1a1a1a;
-    border: 8px solid #990000; /* Bordo rosso UNITN più spesso e professionale */
-    border-radius: 30px; /* Angoli molto arrotondati */
+    border: 8px solid #990000;
+    border-radius: 30px;
     overflow: hidden;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
     display: flex;
@@ -344,23 +338,38 @@ body, html {
     align-items: center;
 }
 
-/* L'elemento immagine (il feed video vero e proprio) */
 .camera-canvas {
     width: 100% !important;
     height: 100% !important;
-    object-fit: cover; /* Copre tutto il riquadro senza lasciare bordi neri */
+    object-fit: cover;
     display: block;
     background-color: #000;
-    /* Rimosso il bordo giallo e le dimensioni fisse piccole */
 }
 
-/* Effetto di caricamento opzionale se la camera non è ancora pronta */
 #camera-feed[src=""] {
     opacity: 0;
 }
 
 #camera-feed {
     transition: opacity 0.5s ease;
+}
+
+.camera-page .camera-feed-container {
+    width: 900px;
+    max-width: 95%;
+    aspect-ratio: 16 / 9;
+    background-color: #000;
+    border: 8px solid #990000;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.camera-page #room-presentation-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 12px;
 }
 
 .modal-overlay {
@@ -425,14 +434,12 @@ body, html {
     background: #ddd; 
 }
 
-/* Forza l'allineamento in alto per le news e dai spazio per la barra rossa */
 .news-list-page .main-container, 
 .news-detail-page .main-container {
     justify-content: flex-start !important; 
-    padding-top: 120px !important; /* Spazio di sicurezza per Status Bar e Logo */
+    padding-top: 120px !important;
 }
 
-/* Sistema il margine del contenuto dettaglio */
 .news-detail-content {
     width: 90%;
     max-width: 850px;
@@ -440,7 +447,6 @@ body, html {
     text-align: left;
 }
 
-/* Assicurati che il titolo della news non sia troppo grande se il testo è lungo */
 #detail-title {
     line-height: 1.2;
     margin-bottom: 20px;
@@ -566,18 +572,17 @@ body, html {
     background-color: #770000;
 }
 
-/* Centratura specifica per lo Start Screen */
 .start-page .main-container {
-    justify-content: center !important; /* Forza la centratura verticale */
-    padding-top: 0 !important; /* Rimuove lo spazio per la status bar che qui non c'è */
+    justify-content: center !important;
+    padding-top: 0 !important;
 }
 
 .start-page .menu-header {
-    margin-top: 0 !important; /* Rimuove il margine di 80px solo in questa pagina */
+    margin-top: 0 !important;
     margin-bottom: 20px;
 }
 
 .start-page .image-container {
-    flex-grow: 0; /* Impedisce al logo di espandersi troppo e spingere via il testo */
+    flex-grow: 0;
     margin: 40px 0;
 }

@@ -3,13 +3,13 @@ class CommonDemoARI {
         this.ros = options.ros;
         // RIMOSSO: this.pal_lib = new PalLib(); <-- Qui stava l'errore
         
-        this.demo_language = "it_IT";
+        this.demo_language = "en_GB";
         this.ari_volume = 0;
 
         // ROS parameter for the volume (ROSLIB puro)
         this.volume_adjust = new ROSLIB.Param({
             ros: this.ros,
-            name: 'volume'
+            name: '/pal/playback_volume' 
         });
 
         // Topic for the data log
@@ -46,18 +46,19 @@ class CommonDemoARI {
     }
 
     // NUOVA FUNZIONE SAY (Usa ROS invece di PalLib)
-    say(text_to_say) {
+    say(text_to_say, lang = this.demo_language) {
         if (text_to_say !== "") {
-            const msg = new ROSLIB.Message({
+            this.tts_topic.publish({
                 goal: {
                     rawtext: {
                         text: text_to_say,
-                        lang_id: this.demo_language
-                    }
+                        lang_id: lang
+                    },
+                    speakerName: '',
+                    wait_before_speaking: 0.0
                 }
             });
-            this.tts_topic.publish(msg);
-            console.log("ARI dice: " + text_to_say);
+            console.log("ARI says: " + text_to_say);
         }
     }
 
@@ -94,17 +95,29 @@ class CommonDemoARI {
     // Function that displays the value of the volume
     getVolume() {
         this.volume_adjust.get((param) => {
-            if (param >= 0) {
-                this.ari_volume = (param != 100 && param != 0) ? 5 * Math.round(param * 0.2) : param;
+            if (param !== null && param >= 0) {
+                // Se il robot restituisce un valore, lo usiamo come base
+                this.ari_volume = parseInt(param);
                 $("#volume-value").html(this.ari_volume);
+            } else {
+                // Se il parametro è vuoto (raro), mettiamo un default
+                this.setVolume(10);
             }
         });
     }
 
     setVolume(target) {
-        this.volume_adjust.set(target);
-        this.ari_volume = target;
+        // 1. Assicuriamoci che sia un numero intero
+        let vol_int = parseInt(target);
+
+        // 2. Lo scriviamo nel parametro corretto
+        this.volume_adjust.set(vol_int);
+
+        // 3. Aggiorniamo la variabile interna e l'interfaccia
+        this.ari_volume = vol_int;
         $("#volume-value").html(this.ari_volume);
+
+        console.log("Volume sincronizzato con successo a: " + vol_int + "%");
     }
 
     // Function that logs each button when it is pressed
@@ -149,39 +162,38 @@ class CommonDemoARI {
         
         // Activates the ROS listener to get the battery value, currently commented because the 
         // ROS environment is not working, but later it will
-        // this.subscribeBattery();
+        this.subscribeBattery();
     }
 
     subscribeBattery() {
-        // Topic to get the battery level
-        const batteryTopic = new ROSLIB.Topic({
-            ros: this.ros,
-            name: '/power/battery_level',
-            messageType: 'std_msgs/Float32'
-        });
+    // Salviamo il riferimento alla classe
+    const self = this;
 
-        // Topic to get if ARI's battery is charging to display it on the status bar
-        const chargingTopic = new ROSLIB.Topic({
-            ros: this.ros,
-            name: '/power/is_charging',
-            messageType: 'std_msgs/Bool'
-        });
+    const batteryTopic = new ROSLIB.Topic({
+        ros: this.ros,
+        name: '/power/battery_level',
+        messageType: 'std_msgs/Float32'
+    });
 
-        let isCharging = false;
+    const chargingTopic = new ROSLIB.Topic({
+        ros: this.ros,
+        name: '/power/is_charging',
+        messageType: 'std_msgs/Bool'
+    });
 
-        // Subscribing to the topic to display if the battery is charging or not and display it
-        // on the status bar
-        chargingTopic.subscribe((msg) => {
-            isCharging = msg.data;
-            this.updateBatteryUI(null, isCharging); // updates only the icon
-        });
+    let isCharging = false;
 
-        // Subscribing to the topic to get the battery level and display it on the status bar
-        batteryTopic.subscribe((msg) => {
-            let level = Math.round(msg.data);
-            this.updateBatteryUI(level, isCharging);
-        });
-    }
+    // Usiamo 'self' invece di 'this' per essere sicuri al 100%
+    chargingTopic.subscribe((msg) => {
+        isCharging = msg.data;
+        self.updateBatteryUI(null, isCharging);
+    });
+
+    batteryTopic.subscribe((msg) => {
+        let level = Math.round(msg.data);
+        self.updateBatteryUI(level, isCharging);
+    });
+}
 
     // Function to update the icon and the text
     updateBatteryUI(level, isCharging) {

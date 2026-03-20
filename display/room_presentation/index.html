@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ARI UNITN News Details</title>
-    <!-- style and fontawesome icons -->
-    <link rel="stylesheet" href="../tools/style/style.css">
+    <title>ARI UNITN Room presentation</title>
+
+    <!-- style and fontawsome icons -->
+    <link rel="stylesheet" href="../tools/style/style.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- script -->
@@ -13,8 +14,9 @@
     <script src="../tools/js/core.js"></script>
 
     <script src="js/main.js"></script>
+
 </head>
-<body class="news-detail-page">
+<body class="camera-page">
 
     <div class="status-bar">
 
@@ -35,7 +37,7 @@
 
     </div>
 
-    <div class="main-container" style="padding-top: 20px;"> 
+    <div class="main-container">
 
         <div class="top-left-controls">
 
@@ -57,18 +59,20 @@
             <img src="../tools/assets/unitn_logo.jpg" alt="Logo UNITN" class="unitn-logo">
         </div>
 
-        <div class="news-detail-content" style="max-width: 850px; margin: 0 auto; text-align: left;">
-        
-            <div style="text-align: center; margin-bottom: 30px; margin-top: 20px;">
-                <button id="ari-read-btn" class="btn-ari btn-read-large">
-                    <i class="fa-solid fa-bullhorn"></i>
-                    <span>ARI, read this news</span>
-                </button>
-            </div>
+        <div class="menu-header">
+            <h1 class="main-title">
+                <i class="fa-solid fa-chalkboard-user" style="margin-right: 20px; color: #990000;"></i>
+                Room presentation
+            </h1>
+        </div>
 
-            <div id="detail-date" class="news-date" style="margin-bottom: 5px;"></div>
-            <h1 id="detail-title" class="main-title" style="font-size: 2.8rem; margin-top: 0; margin-bottom: 15px; line-height: 1.1; font-family: 'Segoe UI', sans-serif;"></h1>
-            <p id="detail-text" style="font-size: 1.4rem; line-height: 1.5; color: #333; font-family: 'Segoe UI', sans-serif;"></p>
+        <div class="camera-stream-wrapper">
+            <div class="camera-feed-container" id="video_stream">
+                <video id="room-presentation-video" autoplay muted playsinline loop>
+                    <source src="../tools/assets/video_lab.mp4" type="video/mp4">
+                        Tag video not supported.
+                </video>
+            </div>
         </div>
         
     </div>

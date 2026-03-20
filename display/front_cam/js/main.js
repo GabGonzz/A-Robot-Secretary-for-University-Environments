@@ -1,23 +1,24 @@
 class PageManager {
     constructor() {
-        // 1. Calcolo dell'IP
+        // IP Computation, useful to take tests locally
         // const robotIP = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
         //                 ? "10.160.50.11" 
         //                 : window.location.hostname;
 
         // this.url = "ws://" + robotIP + ":9090";
-       this.url = "ws://10.160.50.11:9090";
+        this.url = "ws://" + window.location.hostname + ":9090";
 
-        // 2. Connessione a ROS (usa ROSLIB perché lo carichi nell'HTML)
+
         this.ros = new ROSLIB.Ros({
             url: this.url 
         });
 
-        // 3. Evento di connessione
+        //  connection to ROS
         this.ros.on('connection', () => {
-            console.log('*** ROS CONNESSO a ' + this.url + ' ***');
+            console.log('ROS connected on ' + this.url);
             
-            // Inizializziamo la logica comune passando l'oggetto ros
+            // Creation of a CommonDemoARI object to initializate the common logic in the whole project,
+            // which is defined in the file ../tools/js/core.js
             this.common_demo = new CommonDemoARI({
                 ros: this.ros
             });
@@ -26,20 +27,20 @@ class PageManager {
         });
 
         this.ros.on('error', (error) => {
-            console.error('ERRORE DI CONNESSIONE ROS:', error);
+            console.error('ROS connection error: ', error);
         });
     }
 
     init() {
-        // Inizializziamo il core (volume, log, ecc.)
+        // core initialization (volume, log, ecc.)
         this.common_demo.init(() => {
-            console.log("CommonDemoARI pronto.");
+            console.log("CommonDemoARI ready.");
             this.setupCamera();
         });
     }
 
     setupCamera() {
-        console.log("Avvio sottoscrizione telecamera...");
+        console.log("Starting camera subscribe");
         const imageTopic = new ROSLIB.Topic({
             ros: this.ros,
             name: '/head_front_camera/color/image_raw/compressed',
@@ -56,28 +57,21 @@ class PageManager {
 }
 
 $(document).ready(() => {
+
     const page_manager = new PageManager();
+
     // Back to the previous screen
-  $(".control-btn[title='Back']").on("click", function() {
-
-    // The navigation between the pages is usually handled by some ROS functions, but while
-    // working only on the layout these are not usable, so here they are commented
-    // page_manager.common_demo.logBack("back_from_interactions_menu");
-    // page_manager.common_demo.sendRobotIntentInput("unitn_main_menu");
-    // parent.switchConfig("unitn_main_menu");
+    $(".control-btn[title='Back']").on("click", function() {
 
     window.location.href = "../unitn_main_menu/index.html";
-  });
 
-  // Back to the home screen
-  $(".control-btn[title='Home']").on("click", function() {
+    });
 
-    // The navigation between the pages is usually handled by some ROS functions, but while
-    // working only on the layout these are not usable, so here they are commented
-    // page_manager.common_demo.logBack("back_to_unitn_menu");
-    // page_manager.common_demo.sendRobotIntentInput("unitn_main_menu");
-    // parent.switchConfig("unitn_main_menu");
+    // Back to the home screen
+    $(".control-btn[title='Home']").on("click", function() {
 
     window.location.href = "../unitn_main_menu/index.html";
-  });
+
+    });
+
 });
