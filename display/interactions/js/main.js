@@ -1,160 +1,160 @@
-class PageManager {
-  constructor() {
-    const robotIP = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
-                        ? "10.160.50.11" 
-                        : window.location.hostname;
-
-        this.url = "ws://" + robotIP + ":9090";
-    // this.url = "ws://" + window.location.hostname + ":9090";
-    this.ros = new ROSLIB.Ros({
-      url: this.url
-    });
-    this.ros.on('connection', () => {
-      console.log('Connesso a ROS su ' + this.url);
+class PageManager{
+    constructor(){
+        // IP Computation, useful to take tests locally
+        // const robotIP = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+        //                 ? "10.160.50.11" 
+        //                 : window.location.hostname;
+        // this.url = "ws://" + robotIP + ":9090";
+        this.url = "ws://" + window.location.hostname + ":9090";
       
-      this.common_demo = new CommonDemoARI({
-        ros: this.ros
-      });
+        this.ros = new ROSLIB.Ros({
+            url: this.url
+        });
 
-      this.playMotionTopic = new ROSLIB.Topic({
-        ros: this.ros,
-        name: '/play_motion/goal',
-        messageType: 'play_motion_msgs/PlayMotionActionGoal'
-      });
+        // connection to ROS
+        this.ros.on('connection', () => {
 
-      this.init();
-    });
+            console.log('ROS connected on ' + this.url);
+      
+            // Creation of a CommonDemoARI object to initializate the common logic in the whole project,
+            // which is defined in the file ../tools/js/core.js
+            this.common_demo = new CommonDemoARI({
+                ros: this.ros
+            });
 
-    this.ros.on('error', (error) => {
-      console.error('Errore ROS:', error);
-    });
+			// Subscription to the motion topic, useful to make movements and all the interactions
+            this.playMotionTopic = new ROSLIB.Topic({
+        		ros: this.ros,
+        		name: '/play_motion/goal',
+        		messageType: 'play_motion_msgs/PlayMotionActionGoal'
+      		});
+
+      		this.init();
+    	});
+
+    	this.ros.on('error', (error) => {
+      		console.error('ROS error:', error);
+    	});
   }
 
-  // Funzione per eseguire un'animazione
-  playAnimation(motionName) {
-    console.log("Invio mozione: " + motionName);
-    this.playMotionTopic.publish({
-      goal: {
-        motion_name: motionName,
-        skip_planning: true
-      }
-    });
-  }
+  	// Function to execute animations
+  	playAnimation(motionName){
 
-  init() {
-    this.common_demo.init(() => {
-    });
-  }
+    	console.log("Sending animation: " + motionName);
+
+		// Publishment of the desired motion on ARI's channel to execute the animation
+    	this.playMotionTopic.publish({
+      		goal: {
+        		motion_name: motionName,
+        		skip_planning: true
+      		}
+    	});
+
+  	}
+
+  	init(){
+    	this.common_demo.init(() => {
+
+    	});
+  	}
 }
 
 
 $(document).ready(function() {
 
-  const page_manager = new PageManager();
+  	const page_manager = new PageManager();
 
-  // Navigation to the speech menu
-  $("#speech_btn").on("click", function() {
-
-    // The navigation between the pages is usually handled by some ROS functions, but while
-    // working only on the layout these are not usable, so here they are commented
-    // page_manager.common_demo.logBack("unitn_speech_menu");
-    // page_manager.common_demo.sendRobotIntentInput("unitn_speech_menu");
-    // parent.switchConfig("unitn_speech_menu");
+  	// Navigation to the speech menu
+  	$("#speech_btn").on("click", function() {
     
-    window.location.href = "../unitn_speech_menu/index.html";
-  });
+    	window.location.href = "../unitn_speech_menu/index.html";
 
-  $("#present_btn").on("click", function() {
+  	});
 
-    // The navigation between the pages is usually handled by some ROS functions, but while
-    // working only on the layout these are not usable, so here they are commented
-    // page_manager.common_demo.logBack("unitn_speech_menu");
-    // page_manager.common_demo.sendRobotIntentInput("unitn_speech_menu");
-    // parent.switchConfig("unitn_speech_menu");
+	// navigation to the room presentation page
+  	$("#present_btn").on("click", function() {
     
-    window.location.href = "../unitn_room_presentation/index.html";
-  });
+    	window.location.href = "../unitn_room_presentation/index.html";
 
-    // --- Interazione Stretta di Mano ---
-  $("#shake_hand_btn").on("click", function() {
-    console.log("Richiesta stretta di mano (Shake Left)...");
-    
-    // Su ARI, l'animazione standard si chiama spesso 'handshake'
-    // Se hai un'animazione custom, sostituisci il nome qui sotto
-    page_manager.playAnimation('shake_left');
-    setTimeout(() => {
-        page_manager.common_demo.say("Nice to meet you! I am ARI.");
-      }, 1000);
-  });
+  	});
 
-  $("#high_five_btn").on("click", function() {
-    console.log("Richiesta high five...");
-    
-    // Su ARI, l'animazione standard si chiama spesso 'handshake'
-    // Se hai un'animazione custom, sostituisci il nome qui sotto
-    page_manager.playAnimation('high_five');
-    setTimeout(() => {
-        page_manager.common_demo.say("Give me an high five!");
-      }, 2000);
-  });
+    // handshake interaction
+  	$("#shake_hand_btn").on("click", function() {
 
-  $("#wave_btn").on("click", function() {
-    console.log("Richiesta wave_left...");
-    
-    // Su ARI, l'animazione standard si chiama spesso 'handshake'
-    // Se hai un'animazione custom, sostituisci il nome qui sotto
-    page_manager.playAnimation('wave_left');
-    setTimeout(() => {
-        page_manager.common_demo.say("Hello! How are you?");
-      }, 2000);
-  });
+    	page_manager.playAnimation('shake_left');
 
-  $("#show_left_btn").on("click", function() {
-    console.log("Esecuzione Show Left...");
-    page_manager.playAnimation('show_left');
-    page_manager.common_demo.say("Please, take a look at the area on my left.");
-  });
+		// we set the dialogue to start one second after the beginning of the animation, 
+		// to make it more natural
+    	setTimeout(() => {
+        	page_manager.common_demo.say("Nice to meet you! I am ARI.");
+      	}, 1000);
 
-  // --- Interazione Show Right ---
-  $("#show_right_btn").on("click", function() {
-    console.log("Esecuzione Show Right...");
-    // Nota: se il gomito destro è ancora in errore, il movimento sarà parziale
-    page_manager.playAnimation('show_right');
-    page_manager.common_demo.say("And over here on my right, you can find the rest of the lab.");
-  });
+  	});
 
-  $("#look_around_btn").on("click", function() {
-    console.log("Esecuzione Look Around...");
-    
-    // Eseguiamo l'animazione trovata nei rosparam
-    page_manager.playAnimation('look_around');
-    
-    // Feedback vocale opzionale
-    page_manager.common_demo.say("Let me take a look at this beautiful place!");
-  });
+	// high five interaction, not found in ARI's default animation, created by me
+  	$("#high_five_btn").on("click", function() {
 
-  // Back to the previous screen
-  $(".control-btn[title='Back']").on("click", function() {
+    	page_manager.playAnimation('high_five');
 
-    // The navigation between the pages is usually handled by some ROS functions, but while
-    // working only on the layout these are not usable, so here they are commented
-    // page_manager.common_demo.logBack("back_from_interactions_menu");
-    // page_manager.common_demo.sendRobotIntentInput("unitn_main_menu");
-    // parent.switchConfig("unitn_main_menu");
+		// we set the dialogue to start two seconds after the beginning of the animation, 
+		// to make it more natural
+    	setTimeout(() => {
+        	page_manager.common_demo.say("Give me an high five!");
+      	}, 2000);
 
-    window.location.href = "../unitn_main_menu/index.html";
-  });
+  	});
 
-  // Back to the home screen
-  $(".control-btn[title='Home']").on("click", function() {
+	//wave interaction with the left hand, not found in ARI's default animation, created by me, since
+	// there is a wave interaction with the right hand, but on our ARI the right arm does 
+	// not work properly
+  	$("#wave_btn").on("click", function() {
 
-    // The navigation between the pages is usually handled by some ROS functions, but while
-    // working only on the layout these are not usable, so here they are commented
-    // page_manager.common_demo.logBack("back_to_unitn_menu");
-    // page_manager.common_demo.sendRobotIntentInput("unitn_main_menu");
-    // parent.switchConfig("unitn_main_menu");
+    	page_manager.playAnimation('wave_left');
 
-    window.location.href = "../unitn_main_menu/index.html";
-  });
+		// we set the dialogue to start two seconds after the beginning of the animation, 
+		// to make it more natural
+    	setTimeout(() => {
+        	page_manager.common_demo.say("Hello! How are you?");
+      	}, 2000);
+
+  	});
+
+	// show left interaction
+  	$("#show_left_btn").on("click", function() {
+
+    	page_manager.playAnimation('show_left');
+    	page_manager.common_demo.say("Please, take a look at the area on my left.");
+
+  	});
+
+  	// show right interaction
+  	$("#show_right_btn").on("click", function() {
+		
+    	page_manager.playAnimation('show_right');
+    	page_manager.common_demo.say("Now, take a look at the area on my right.");
+
+  	});
+
+	// look around interaction
+  	$("#look_around_btn").on("click", function() {
+		
+    	page_manager.playAnimation('look_around');
+    	page_manager.common_demo.say("Let me take a look at this place!");
+
+  	});
+
+  	// Back to the previous screen
+  	$(".control-btn[title='Back']").on("click", function() {
+
+    	window.location.href = "../unitn_main_menu/index.html";
+
+  	});
+
+  	// Back to the home screen
+  	$(".control-btn[title='Home']").on("click", function() {
+
+    	window.location.href = "../unitn_main_menu/index.html";
+
+  	});
 
 });
