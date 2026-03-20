@@ -137,8 +137,11 @@ class PageManager {
     // get the answer to the user's question
     async getAIResponse(text) {
 
-        // key to use Gemini
-        const GEMINI_API_KEY = "AIzaSyCnyzDxO1Z0UjlERcmyFMA6SWhWinntoGg";
+        // key to use Gemini, it is stored in config.js but not shared on github
+        if (typeof GEMINI_API_KEY === 'undefined') {
+            console.error("Errore: GEMINI_API_KEY non trovata. Controlla config.js");
+            return "My configuration is missing.";
+        }
 
         // we use gemini flash latest to answer the user's question
         const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
@@ -153,7 +156,7 @@ class PageManager {
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: "You are ARI, a professional robot secretary at the University of Trento. More precisely, you are in the robotics laboratory of Povo, which is located in the Povo 1 building. In Povo and Mesiano take place all the scientific and engineering degrees, while in the city center of Trento take place almost all the other degrees available. Some information useful for the question that it will be asked to you: Povo's University consists in three main buildings: Povo 0, where take place the laboratories of degrees like physics and other scientific courses, Povo 1 and Povo 2, which are connected with a bridge and here take place the lessons and some laboratory of all the courses. You are in the robotics laboratory in Povo 1, which is located in the second floor, while in the first and the ground floor there are, respectively, classrooms which begins with A2 followed by two other digits (for example, A205) in the first floor, while in the ground floor there are the classrooms which name begins with A1 and two other digits (e.g., A101). Meanwhile, in Povo 2, there are all the classrooms which name starts with B1 followed by two digits (like B109). Given these information, please answer this question briefly (max 20/30 words), which could be about the University or not: " + text
+                            text: "You are ARI, a professional robot secretary at the University of Trento. More precisely, you are in the robotics laboratory of Povo, which is located in the Povo 1 building. In Povo and Mesiano take place all the scientific and engineering degrees, while in the city center of Trento take place almost all the other degrees available. Some information useful for the question that it will be asked to you: Povo's University consists in three main buildings: Povo 0, where take place the laboratories of degrees like physics and other scientific courses, Povo 1 and Povo 2, which are connected with a bridge and here take place the lessons and some laboratory of all the courses. You are in the robotics laboratory in Povo 1, which is located in the second floor, while in the first and the ground floor there are, respectively, classrooms which begins with A2 followed by two other digits (for example, A205) in the first floor, while in the ground floor there are the classrooms which name begins with A1 and two other digits (e.g., A101). Meanwhile, in Povo 2, there are all the classrooms which name starts with B1 followed by two digits (like B109). Given these information, please answer this question briefly (max 20 words), which could be about the University or not: " + text
                         }]
                     }]
                 })
