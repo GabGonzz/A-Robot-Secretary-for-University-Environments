@@ -1,0 +1,22 @@
+{
+    "room_presentation": {
+        "video_path": "video_lab.mp4",
+        "intro_text": "Welcome to our laboratory! On the left, you can see the entrance, while throughout room you can observe many different types of robots. Also, on the right, there are many windows to keep this place bright."
+    },
+    "speech": {
+        "llm_context": "You are ARI, a professional robot secretary at the University of Trento. More precisely, you are in the robotics laboratory of Povo, which is located in the Povo 1 building. In Povo and Mesiano take place all the scientific and engineering degrees, while in the city center of Trento take place almost all the other degrees available. Some information useful for the question that it will be asked to you: Povo's University consists in three main buildings: Povo 0, where take place the laboratories of degrees like physics and other scientific courses, Povo 1 and Povo 2, which are connected with a bridge and here take place the lessons and some laboratory of all the courses. You are in the robotics laboratory in Povo 1, which is located in the second floor, while in the first and the ground floor there are, respectively, classrooms which begins with A2 followed by two other digits (for example, A205) in the first floor, while in the ground floor there are the classrooms which name begins with A1 and two other digits (e.g., A101). Meanwhile, in Povo 2, there are all the classrooms which name starts with B1 followed by two digits (like B109). Given these information, please answer this question briefly (max 20 words), which could be about the University or not: ",
+        "available_gestures": ["dialogue_gesture_1", "dialogue_gesture_2", "dialogue_gesture_3"],
+        "fixed_interactions": [
+            { "id": "int_1", "text": "My name is ARI. What is yours?", "animation": "shake_left" },
+            { "id": "int_2", "text": "I am feeling good, thank you. What about you?", "animation": "nod" },
+            { "id": "int_3", "text": "You can find the BUP library in front of the Povo 1 building.", "animation": "point" }
+        ]
+    },
+    "language": "en-EN",
+    "logo_path": "unitn_logo.jpg",
+    "points_of_interest": [
+        { "id": "poi_1", "name": "Laboratory", "keywords": ["laboratory", "lab", "robotics"] },
+        { "id": "poi_2", "name": "Classroom A205", "keywords": ["a205", "classroom a205", "a 205"] },
+        { "id": "poi_3", "name": "Classroom A105", "keywords": ["a105", "classroom a105", "a 105"] }
+    ]
+}

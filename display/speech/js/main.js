@@ -1,7 +1,3 @@
-// list of gestures that ARI will do while talking. They are not included in the demo, so
-// I had to build them in the WebGUI
-const GESTURES = ['dialogue_gesture_1', 'dialogue_gesture_2', 'dialogue_gesture_3'];
-
 class PageManager {
     constructor() {
         // IP Computation, useful to take tests locally
@@ -51,6 +47,15 @@ class PageManager {
     init() {
         this.common_demo.init(() => {
             console.log("CommonDemoARI ready.");
+
+            const interactions = this.common_demo.config.speech.fixed_interactions;
+    
+            interactions.forEach(inter => {
+                $(`#${inter.id}`).on("click", () => {
+                    this.common_demo.say(inter.text);
+                    this.playAnimation(inter.animation);
+                });
+            });
         });
     }
 
@@ -71,8 +76,9 @@ class PageManager {
 
     // function to make ARI execute one random gesture between the ones that are in the list defined previously
     playRandomGesture() {
-        const randomIndex = Math.floor(Math.random() * GESTURES.length);
-        const selectedGesture = GESTURES[randomIndex];
+        const gestures = this.common_demo.config.speech.available_gestures;
+        const randomIndex = Math.floor(Math.random() * gestures.length);
+        const selectedGesture = gestures[randomIndex];
         this.playAnimation(selectedGesture);
     }
 
@@ -123,8 +129,26 @@ class PageManager {
             const transcript = event.results[0][0].transcript;
             console.log("User said: " + transcript);
             
+            // PREPARAZIONE POP-UP (Loading state)
+            $("#ai-response-text").hide().text(""); 
+            // Manteniamo la domanda dell'utente nel titolo
+            $("#ai-modal-title").html("Thinking... <br><small style='font-size: 1.2rem; color: #666;'>I heard: \"" + transcript + "\"</small>");
+            $("#ai-loading-icon").show();
+            $("#ai-modal-footer").hide();
+            $("#ai-modal").fadeIn(300);
+
             // waits for the response of the LLM and then it makes ARI say that response
             const aiResponse = await this.getAIResponse(transcript);
+
+            // AGGIORNAMENTO POP-UP (Response state)
+            $("#ai-loading-icon").hide();
+    
+            // Cambiamo solo la parola "Thinking..." con "Answer" ma lasciamo il "I heard..."
+            $("#ai-modal-title").html("ARI's Answer <br><small style='font-size: 1.2rem; color: #666;'>I heard: \"" + transcript + "\"</small>");
+    
+            $("#ai-response-text").text(aiResponse).fadeIn(300);
+            $("#ai-modal-footer").show();
+
             this.ariSpeakWithGestures(aiResponse);
         };
 
@@ -136,6 +160,8 @@ class PageManager {
     // function to send the text (which has been previously converted from speech) to the LLM and 
     // get the answer to the user's question
     async getAIResponse(text) {
+
+        const systemPrompt = this.common_demo.config.speech.llm_context;
 
         // key to use Gemini, it is stored in config.js but not shared on github
         if (typeof GEMINI_API_KEY === 'undefined') {
@@ -156,7 +182,7 @@ class PageManager {
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: "You are ARI, a professional robot secretary at the University of Trento. More precisely, you are in the robotics laboratory of Povo, which is located in the Povo 1 building. In Povo and Mesiano take place all the scientific and engineering degrees, while in the city center of Trento take place almost all the other degrees available. Some information useful for the question that it will be asked to you: Povo's University consists in three main buildings: Povo 0, where take place the laboratories of degrees like physics and other scientific courses, Povo 1 and Povo 2, which are connected with a bridge and here take place the lessons and some laboratory of all the courses. You are in the robotics laboratory in Povo 1, which is located in the second floor, while in the first and the ground floor there are, respectively, classrooms which begins with A2 followed by two other digits (for example, A205) in the first floor, while in the ground floor there are the classrooms which name begins with A1 and two other digits (e.g., A101). Meanwhile, in Povo 2, there are all the classrooms which name starts with B1 followed by two digits (like B109). Given these information, please answer this question briefly (max 20 words), which could be about the University or not: " + text
+                            text: systemPrompt + text
                         }]
                     }]
                 })
@@ -175,7 +201,7 @@ class PageManager {
             console.error("Fetch error:", e);
             return "My connection to the cloud is a bit shaky.";
         }
-}
+    }
 
     startListening() {
         this.recognition.start();
@@ -192,29 +218,9 @@ $(document).ready(function() {
         page_manager.startListening();
     });
 
-    // "What is your name?" interaction
-    $("#int_1").on("click", function() {
-
-        page_manager.common_demo.say("My name is ARI. What is yours?");
-        page_manager.playAnimation('shake_left');
-    
+    $("#btn-ai-close").on("click", function() {
+        $("#ai-modal").fadeOut(300);
     });
-
-    // "How are you feeling today?" interaction
-    $("#int_2").on("click", function() {
-
-        page_manager.common_demo.say("I am feeling good, thank you. What about you?");
-        page_manager.playAnimation('nod');
-    
-    });
-
-    // "Where is the BUP library?" interaction
-    $("#int_3").on("click", function() {
-
-        page_manager.common_demo.say("You can find the BUP library in front of the Povo 1 building.");
-        page_manager.playAnimation('point');
-    
-    }); 
 
     // Back to the previous screen
     $(".control-btn[title='Back']").on("click", function() {

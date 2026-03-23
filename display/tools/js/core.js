@@ -1,6 +1,7 @@
 class CommonDemoARI {
     constructor(options) {
         this.ros = options.ros;
+        this.config = null;
         // RIMOSSO: this.pal_lib = new PalLib(); <-- Qui stava l'errore
         
         this.demo_language = "en_GB";
@@ -34,8 +35,8 @@ class CommonDemoARI {
         });
     }
 
-    init(cb) {
-        // RIMOSSO: this.pal_lib.init(); <-- Non serve più
+    async init(cb) {
+        await this.loadGlobalConfig();
         
         $(".main-container").fadeIn("slow");
         
@@ -43,6 +44,29 @@ class CommonDemoARI {
         this.updateStatusBar();
         
         if (cb) cb();
+    }
+
+    // Nuova funzione per caricare i dati e applicare il logo
+    async loadGlobalConfig() {
+        try {
+            // Usiamo un percorso che funzioni da quasi ovunque. 
+            // Se le pagine sono a profondità diverse, potresti dover 
+            // passare il path come opzione, ma proviamo con quello relativo ai tools
+            const response = await fetch('../tools/assets/configuration.json');
+            this.config = await response.json();
+
+            console.log("Configurazione globale caricata nel core.");
+
+            // Applichiamo il logo automaticamente se esiste l'elemento nell'HTML
+            const logoElement = document.getElementById('main-logo');
+            if (logoElement && this.config.logo_path) {
+                // CORREZIONE QUI: Accedi a this.config.logo_path
+                const logoPath = "../tools/assets/" + this.config.logo_path;
+                logoElement.src = logoPath;
+            }
+        } catch (error) {
+            console.error("Errore caricamento config nel core:", error);
+        }
     }
 
     // NUOVA FUNZIONE SAY (Usa ROS invece di PalLib)
