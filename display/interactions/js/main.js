@@ -72,9 +72,16 @@ $(document).ready(function() {
   	});
 
 	// navigation to the room presentation page
-  	$("#present_btn").on("click", function() {
+  	$("#present_room_btn").on("click", function() {
     
     	window.location.href = "../unitn_room_presentation/index.html";
+
+  	});
+
+	// navigation to the room presentation page
+  	$("#present_degree_btn").on("click", function() {
+    
+    	window.location.href = "../unitn_degree_presentation/index.html";
 
   	});
 
@@ -116,22 +123,6 @@ $(document).ready(function() {
     	setTimeout(() => {
         	page_manager.common_demo.say("Hello! How are you?");
       	}, 2000);
-
-  	});
-
-	// show left interaction
-  	$("#show_left_btn").on("click", function() {
-
-    	page_manager.playAnimation('show_left');
-    	page_manager.common_demo.say("Please, take a look at the area on my left.");
-
-  	});
-
-  	// show right interaction
-  	$("#show_right_btn").on("click", function() {
-		
-    	page_manager.playAnimation('show_right');
-    	page_manager.common_demo.say("Now, take a look at the area on my right.");
 
   	});
 

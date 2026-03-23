@@ -48,17 +48,10 @@ $(document).ready(function() {
 
   	});
 
-  	// Navigation to the Head camera page
-  	$("#front_cam_btn").on("click", function() {
+  	// Navigation to the camera menu page
+  	$("#cam_btn").on("click", function() {
 
-    	window.location.href = "../unitn_front_cam/index.html";
-
-  	});
-
-  	// Navigation to the torso camera page
-  	$("#torso_cam_btn").on("click", function() {
-
-    	window.location.href = "../unitn_torso_cam/index.html";
+    	window.location.href = "../unitn_cam_menu/index.html";
 
   	});
 

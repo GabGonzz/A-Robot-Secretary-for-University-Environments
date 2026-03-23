@@ -1,22 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ARI UNITN Menu</title>
-
+    <title>ARI UNITN Front Fisheye camera</title>
     <!-- style and fontawesome icons -->
-    <link rel="stylesheet" href="../tools/style/style.css">
+    <link rel="stylesheet" href="../tools/style/style.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- script -->
     <script src="../tools/js/lib/jquery.min.js"></script>
     <script src="../tools/js/lib/roslib.min.js"></script>
-
+    
     <script src="../tools/js/core.js"></script>
 
     <script src="js/main.js"></script>
-
 </head>
-<body>
+<body class="camera-page">
 
     <div class="status-bar">
 
@@ -40,44 +38,36 @@
     <div class="main-container">
 
         <div class="top-left-controls">
+
+            <div class="control-btn" title="Back">
+                <i class="fa-solid fa-chevron-left"></i>
+            </div> 
+    
+            <div class="control-btn" title="Home">
+                <i class="fa-solid fa-house"></i>
+            </div>
+    
             <div class="control-btn" title="Volume">
                 <i class="fa-solid fa-volume-high"></i>
             </div>
-        </div>
 
+        </div>
+        
         <div class="unitn-logo-container">
             <img id="main-logo" src="" alt="Logo UNITN" class="unitn-logo">
         </div>
 
         <div class="menu-header">
             <h1 class="main-title">
-                <i class="fa-solid fa-list-ul" style="margin-right: 20px; color: #990000;"></i>
-                Main Menu
+                <i class="fa-solid fa-circle-dot" style="margin-right: 20px; color: #990000;"></i>
+                Front fisheye camera
             </h1>
         </div>
 
-        <div class="btns-row" id="self_presentation_menu">
-
-            <div class="btn-ari btn-action" id="poi_btn">
-                <i class="fa-solid fa-location-dot"></i>
-                <div class="btn-label">Points of interest</div>
+        <div class="camera-stream-wrapper">
+            <div class="camera-feed-container" id="video_stream">
+                <img id="camera-feed" class="camera-canvas" src="" alt="Loading...">
             </div>
-    
-            <div class="btn-ari btn-action" id="interactions_btn">
-                <i class="fa-solid fa-handshake"></i>
-                <div class="btn-label">Interactions</div>
-            </div>
-
-            <div class="btn-ari btn-action" id="cam_btn">
-                <i class="fa-solid fa-camera"></i>
-                <div class="btn-label">Cameras</div>
-            </div>
-
-            <div class="btn-ari btn-action" id="news_btn">
-                <i class="fa-solid fa-newspaper"></i>
-                <div class="btn-label">UNITN News</div>
-            </div>
-
         </div>
         
     </div>

@@ -42,7 +42,7 @@ class PageManager {
         console.log("Starting camera subscribe");
         const imageTopic = new ROSLIB.Topic({
             ros: this.ros,
-            name: '/torso_front_camera/color/image_raw/compressed',
+            name: '/torso_back_camera/fisheye1/image_raw/compressed',
             messageType: 'sensor_msgs/CompressedImage'
         });
 

@@ -63,7 +63,7 @@ $(document).ready(() => {
     // Back to the previous screen
     $(".control-btn[title='Back']").on("click", function() {
 
-    window.location.href = "../unitn_main_menu/index.html";
+    window.location.href = "../unitn_cam_menu/index.html";
 
     });
 

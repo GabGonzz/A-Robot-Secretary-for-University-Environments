@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ARI UNITN Menu</title>
+    <title>ARI UNITN Cameras Menu</title>
 
     <!-- style and fontawesome icons -->
     <link rel="stylesheet" href="../tools/style/style.css">
@@ -40,9 +40,19 @@
     <div class="main-container">
 
         <div class="top-left-controls">
+
+            <div class="control-btn" title="Back">
+                <i class="fa-solid fa-chevron-left"></i>
+            </div> 
+    
+            <div class="control-btn" title="Home">
+                <i class="fa-solid fa-house"></i>
+            </div>
+
             <div class="control-btn" title="Volume">
                 <i class="fa-solid fa-volume-high"></i>
             </div>
+
         </div>
 
         <div class="unitn-logo-container">
@@ -51,31 +61,41 @@
 
         <div class="menu-header">
             <h1 class="main-title">
-                <i class="fa-solid fa-list-ul" style="margin-right: 20px; color: #990000;"></i>
-                Main Menu
+                <i class="fa-solid fa-camera" style="margin-right: 20px; color: #990000;"></i>
+                Cameras Menu
             </h1>
         </div>
 
         <div class="btns-row" id="self_presentation_menu">
-
-            <div class="btn-ari btn-action" id="poi_btn">
-                <i class="fa-solid fa-location-dot"></i>
-                <div class="btn-label">Points of interest</div>
+    
+            <div class="btn-ari btn-action" id="front_cam_btn">
+                <i class="fa-solid fa-user"></i>
+                <div class="btn-label">Head camera</div>
             </div>
     
-            <div class="btn-ari btn-action" id="interactions_btn">
-                <i class="fa-solid fa-handshake"></i>
-                <div class="btn-label">Interactions</div>
+            <div class="btn-ari btn-action" id="torso_cam_btn">
+                <i class="fa-solid fa-vest"></i>
+                <div class="btn-label">Torso camera</div>
             </div>
 
-            <div class="btn-ari btn-action" id="cam_btn">
-                <i class="fa-solid fa-camera"></i>
-                <div class="btn-label">Cameras</div>
+            <div class="btn-ari btn-action" id="back_cam_btn">
+                <i class="fa-solid fa-camera-rotate"></i>
+                <div class="btn-label">Back Camera</div>
             </div>
 
-            <div class="btn-ari btn-action" id="news_btn">
-                <i class="fa-solid fa-newspaper"></i>
-                <div class="btn-label">UNITN News</div>
+            <div class="btn-ari btn-action" id="front_fisheye_cam_btn">
+                <i class="fa-solid fa-circle-dot"></i>
+                <div class="btn-label">Front Fisheye Camera</div>
+            </div>
+
+            <div class="btn-ari btn-action" id="rear_fisheye_cam_btn">
+                <i class="fa-solid fa-circle-dot"></i>
+                <div class="btn-label">Rear Fisheye Camera</div>
+            </div>
+
+            <div class="btn-ari btn-action" id="infra_cam_btn">
+                <i class="fa-solid fa-eye-low-vision"></i>
+                <div class="btn-label">Torso Infrared Camera</div>
             </div>
 
         </div>
