@@ -113,7 +113,7 @@ class PageManager {
                 clearInterval(this.moveInterval);
                 this.playAnimation('nod');
             }
-        }, 9000); // One gesture every 8 seconds
+        }, 9000); // One gesture every 9 seconds
     }
 
     // function to setup the vocal recognition, which starts when the microphone button in the html page
@@ -129,9 +129,11 @@ class PageManager {
             const transcript = event.results[0][0].transcript;
             console.log("User said: " + transcript);
             
-            // PREPARAZIONE POP-UP (Loading state)
+            // while ARI wait for Gemini's response to the user's question, it will appear a pop-up 
+            // that shows that ARI is still thinking of what to answer
             $("#ai-response-text").hide().text(""); 
-            // Manteniamo la domanda dell'utente nel titolo
+            // In this pop-up, we also write what ARI heard, to let the user check if ARI 
+            // correctly heard what the user said
             $("#ai-modal-title").html("Thinking... <br><small style='font-size: 1.2rem; color: #666;'>I heard: \"" + transcript + "\"</small>");
             $("#ai-loading-icon").show();
             $("#ai-modal-footer").hide();
@@ -140,10 +142,9 @@ class PageManager {
             // waits for the response of the LLM and then it makes ARI say that response
             const aiResponse = await this.getAIResponse(transcript);
 
-            // AGGIORNAMENTO POP-UP (Response state)
+            // update of the previously created pop-up with Gemini's response to the question
             $("#ai-loading-icon").hide();
     
-            // Cambiamo solo la parola "Thinking..." con "Answer" ma lasciamo il "I heard..."
             $("#ai-modal-title").html("ARI's Answer <br><small style='font-size: 1.2rem; color: #666;'>I heard: \"" + transcript + "\"</small>");
     
             $("#ai-response-text").text(aiResponse).fadeIn(300);

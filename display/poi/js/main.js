@@ -1,12 +1,12 @@
 class PageManager{
  	constructor(){
     	// IP Computation, useful to take tests locally
-        const robotIP = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
-                        ? "10.160.50.11" 
-                        : window.location.hostname;
+        // const robotIP = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+        //                 ? "10.160.50.11" 
+        //                 : window.location.hostname;
 
-        this.url = "ws://" + robotIP + ":9090";
-    //    this.url = "ws://" + window.location.hostname + ":9090";
+        // this.url = "ws://" + robotIP + ":9090";
+       this.url = "ws://" + window.location.hostname + ":9090";
     	this.ros = new ROSLIB.Ros({
       		url: this.url
     	});
@@ -27,7 +27,7 @@ class PageManager{
       		console.error('ROS Error:', error);
     	});
 
-		// Configurazione Vocale
+		// Vocal recognition configuration
         this.recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         this.recognition.lang = 'en-EN';
         this.setupVoiceCommands();
@@ -42,6 +42,7 @@ class PageManager{
     	});
   	}
 
+    //function to load the poi list that is in the configuration file
     renderPoiList(poiList) {
         const container = $("#dynamic-poi-list");
         container.empty();
@@ -49,7 +50,8 @@ class PageManager{
         poiList.forEach(poi => {
             const poiDiv = $(`<div class="poi-item" id="${poi.id}">${poi.name}</div>`);
             
-            // Al click sul pulsante generato
+            // when a poi button will be clicked, it will show the confirmation button to make sure 
+            // if the user does really want to go there
             poiDiv.on("click", () => {
                 this.showConfirmation(poi.name);
             });
@@ -58,7 +60,10 @@ class PageManager{
         });
     }
 
+    // function to set up the vocal commands received by ARI
 	setupVoiceCommands() {
+
+        //when the microphone starts listening, it changes its color
         this.recognition.onstart = () => {
             $("#btn-poi-mic").css("background-color", "#ff0000");
         };
@@ -72,14 +77,17 @@ class PageManager{
                 return;
             }
 
-            // Lista dei POI e parole chiave associate
+            // loading of the list of pois from the configuration file
             const poiList = this.common_demo.config.points_of_interest;
 
-            // Cerchiamo se il transcript contiene una delle parole chiave
+            // check if the transcript contains one of the keywords representing one of the pois
             let foundPoi = poiList.find(poi => 
                 poi.keywords.some(keyword => transcript.includes(keyword))
             );
 
+            // if a poi was recognised, then it will be shown the confirmation button to check 
+            // the user's intentions, if not, ARI will communicate that it didn't heard any keyword 
+            // related to any poi
             if (foundPoi) {
                 this.showConfirmation(foundPoi.name);
             } else {
@@ -122,7 +130,7 @@ $(document).ready(function() {
 
   	});
 
-	// Avvio microfono
+	// microphone starts listening
     $("#btn-poi-mic").on("click", function() {
 
         page_manager.startListening();

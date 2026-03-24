@@ -18,6 +18,7 @@
     },
     "language": "en-EN",
     "logo_path": "unitn_logo.jpg",
+    "news_file_path": "news.json",
     "points_of_interest": [
         { "id": "poi_1", "name": "Laboratory", "keywords": ["laboratory", "lab", "robotics"] },
         { "id": "poi_2", "name": "Classroom A205", "keywords": ["a205", "classroom a205", "a 205"] },

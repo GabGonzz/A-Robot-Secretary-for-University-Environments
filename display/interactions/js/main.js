@@ -78,7 +78,7 @@ $(document).ready(function() {
 
   	});
 
-	// navigation to the room presentation page
+	// navigation to the degree presentation page
   	$("#present_degree_btn").on("click", function() {
     
     	window.location.href = "../unitn_degree_presentation/index.html";

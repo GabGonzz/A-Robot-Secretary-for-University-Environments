@@ -55,28 +55,28 @@ $(document).ready(function() {
 
   	});
 
-  	// Navigation to the interactions page
+  	// Navigation to the back camera page
   	$("#back_cam_btn").on("click", function() {
 
     	window.location.href = "../unitn_back_cam/index.html";
 
   	});
 
-    // Navigation to the interactions page
+    // Navigation to the front fisheye camera page
   	$("#front_fisheye_cam_btn").on("click", function() {
 
     	window.location.href = "../unitn_front_fisheye_cam/index.html";
 
   	});
 
-    // Navigation to the interactions page
+    // Navigation to the rear fisheye page
   	$("#rear_fisheye_cam_btn").on("click", function() {
 
     	window.location.href = "../unitn_rear_fisheye_cam/index.html";
 
   	});
 
-    // Navigation to the interactions page
+    // Navigation to the infrared camera page
   	$("#infra_cam_btn").on("click", function() {
 
     	window.location.href = "../unitn_infra_cam/index.html";

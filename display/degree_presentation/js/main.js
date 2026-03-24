@@ -51,48 +51,48 @@ class PageManager {
 
   	}
 
+    //function to play/pause the video and make ARI do gestures while the video plays
     togglePresentation() {
         const video = $('#degree-presentation-video')[0];
         const icon = $('#play-pause-icon');
         const overlay = $('#video-controls-overlay');
 
         if (video.paused) {
-            // --- AZIONE: PLAY ---
+            // if the video was paused, it resumes
             video.play();
             icon.removeClass('fa-circle-play').addClass('fa-circle-pause');
             overlay.css('background', 'rgba(0,0,0,0)');
             icon.fadeOut(500);
 
-            // AVVIA I GESTI
+            // when the video starts/resumes, ARI will begin to make some gestures
             this.startVideoGestures();
 
         } else {
-            // --- AZIONE: PAUSA ---
+            // if the video was playing, it stops
             video.pause();
             icon.removeClass('fa-circle-pause').addClass('fa-circle-play');
             overlay.css('background', 'rgba(0,0,0,0.3)');
             icon.show();
 
-            // FERMA I GESTI
+            // we stop ARI from making gestures when the video is paused
             this.stopVideoGestures();
         }
     }
 
-    // Aggiungi questi metodi alla tua classe PageManager
+    // function to handle ARI's gestures
     startVideoGestures() {
-        // Evitiamo di sovrapporre più intervalli
+        // if to avoid the sovrapposition of more intervals
         if (this.moveInterval) clearInterval(this.moveInterval);
 
         console.log("ARI inizia a gesticolare per il video.");
         
-        // Esegue il primo gesto immediatamente
+        // it plays the first gesture immediately
         this.playRandomGesture();
 
-        // Imposta il loop: un gesto ogni 8 secondi (puoi ridurlo a 6s se vuoi ARI più attivo)
+        // then, it will play a random gesture each 9 seconds
         this.moveInterval = setInterval(() => {
             const video = $('#degree-presentation-video')[0];
             
-            // Verifichiamo di nuovo se il video è in pausa (sicurezza extra)
             if (video && !video.paused && !video.ended) {
                 this.playRandomGesture();
             } else {
@@ -101,13 +101,14 @@ class PageManager {
         }, 9000); 
     }
 
+    //function to stop ARI from playing gestures if the video is paused
     stopVideoGestures() {
         console.log("ARI torna in posizione di riposo.");
         if (this.moveInterval) {
             clearInterval(this.moveInterval);
             this.moveInterval = null;
         }
-        // Riporta ARI in una posizione neutra
+        // take ARI back to the normal position
         this.playAnimation('start_ari');
     }
 
@@ -124,19 +125,20 @@ class PageManager {
             const config = this.common_demo.config;
             const video = $('#degree-presentation-video')[0];
 
+            //computation of the video path which is defined partially in the configuration file
             if (config && config.degree_presentation) {
                 const fullVideoPath = "../tools/assets/" + config.degree_presentation.video_path;
                 $('#video-source').attr('src', fullVideoPath);
                 video.load();
             }
 
-            // AGGIORNAMENTO BARRA IN TEMPO REALE
+            // continuous update of the video progress bar
             video.addEventListener('timeupdate', () => {
                 const percentage = (video.currentTime / video.duration) * 100;
                 $('#video-progress-bar').css('width', percentage + '%');
             });
 
-            // RESET QUANDO IL VIDEO FINISCE
+            // when the video ends, it resets from the start and it will stop ARI's gestures
             video.addEventListener('ended', () => {
                 $('#play-pause-icon').removeClass('fa-circle-pause').addClass('fa-circle-play').show();
                 $('#video-controls-overlay').css('background', 'rgba(0,0,0,0.3)');
@@ -156,11 +158,12 @@ $(document).ready(function() {
 
   	const page_manager = new PageManager();
 
+    // event to play/pause the video on the user's click
   	$("#video-controls-overlay").on("click", function() {
         page_manager.togglePresentation();
     });
 
-    // Se vuoi che l'icona riappaia se l'utente passa sopra il video (opzionale)
+    // show the play/pause button when the mouse is on the video
     $("#video-controls-overlay").on("mouseenter", function() {
         if (!$('#degree-presentation-video')[0].paused) {
             $('#play-pause-icon').fadeIn(200);
@@ -171,11 +174,12 @@ $(document).ready(function() {
         }
     });
 
+    // event to go to the instant of the video that is selected by clicking on the progress bar
     $("#video-progress-container").on("click", function(e) {
         const video = $('#degree-presentation-video')[0];
         const container = $(this);
         
-        // Calcoliamo la posizione del click rispetto alla larghezza totale della barra
+        // computation of the click position with respect of the width of the progress bar
         const clickX = e.pageX - container.offset().left;
         const width = container.width();
         const seekTime = (clickX / width) * video.duration;
@@ -183,25 +187,24 @@ $(document).ready(function() {
         video.currentTime = seekTime;
     });
 
-    // Dentro il tuo $(document).ready
+    // fullscreen button event handler, for many types of browsers
     $("#fullscreen-btn").on("click", function(e) {
         e.stopPropagation();
         const target = document.getElementById('fullscreen-target');
         const icon = $(this).find('i');
 
-        // Controllo compatibile con Tablet (Chrome/Safari)
         const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
 
         if (!isFullscreen) {
-            // Entra in Fullscreen
+            // enter full screen mode
             if (target.requestFullscreen) {
                 target.requestFullscreen();
-            } else if (target.webkitRequestFullscreen) { // Safari/iOS
+            } else if (target.webkitRequestFullscreen) {
                 target.webkitRequestFullscreen();
             }
             icon.removeClass('fa-expand').addClass('fa-compress');
         } else {
-            // Esci dal Fullscreen
+            // exit fullscreen mode
             if (document.exitFullscreen) {
                 document.exitFullscreen();
             } else if (document.webkitExitFullscreen) {
@@ -211,7 +214,7 @@ $(document).ready(function() {
         }
     });
 
-    // Listener per gestire il tasto "ESC" e aggiornare l'icona correttamente
+    // handler to change the fullscreen button icon when it exits fullscreen mode
     document.addEventListener('fullscreenchange', () => {
         const icon = $("#fullscreen-btn i");
         if (!document.fullscreenElement) {

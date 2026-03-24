@@ -48,14 +48,14 @@ $(document).ready(function() {
 
   	});
 
-  	// Navigation to the camera menu page
+  	// Navigation to the cameras menu page
   	$("#cam_btn").on("click", function() {
 
     	window.location.href = "../unitn_cam_menu/index.html";
 
   	});
 
-  	// Navigation to the interactions page
+  	// Navigation to the interactions menu page
   	$("#interactions_btn").on("click", function() {
 
     	window.location.href = "../unitn_interactions_menu/index.html";

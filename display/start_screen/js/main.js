@@ -4,7 +4,6 @@ class PageManager {
         // const robotIP = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
         //                 ? "10.160.50.11" 
         //                 : window.location.hostname;
-
         // this.url = "ws://" + robotIP + ":9090";
        	this.url = "ws://" + window.location.hostname + ":9090";
 
