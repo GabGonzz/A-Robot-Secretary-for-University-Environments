@@ -113,7 +113,7 @@ class PageManager {
                 clearInterval(this.moveInterval);
                 this.playAnimation('nod');
             }
-        }, 8000); // One gesture every 8 seconds
+        }, 9000); // One gesture every 8 seconds
     }
 
     // function to setup the vocal recognition, which starts when the microphone button in the html page

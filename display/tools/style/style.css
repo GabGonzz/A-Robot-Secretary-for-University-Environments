@@ -372,6 +372,26 @@ body, html {
     border-radius: 12px;
 }
 
+#fullscreen-target:fullscreen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+}
+
+#fullscreen-target:fullscreen .camera-feed-container {
+    width: 100vw;
+    max-width: none;
+    border: none;
+}
+
+#fullscreen-target:fullscreen #video-progress-container {
+    width: 95vw;
+    margin-top: 20px;
+    height: 10px;
+}
+
 .modal-overlay {
     position: fixed;
     top: 0; left: 0;

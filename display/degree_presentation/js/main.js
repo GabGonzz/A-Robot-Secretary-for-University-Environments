@@ -7,7 +7,6 @@ class PageManager {
         // this.url = "ws://" + robotIP + ":9090";
        	this.url = "ws://" + window.location.hostname + ":9090";
 
-        this.presentationStarted = false;
 
     	this.ros = new ROSLIB.Ros({
       		url: this.url
@@ -56,48 +55,100 @@ class PageManager {
         const video = $('#degree-presentation-video')[0];
         const icon = $('#play-pause-icon');
         const overlay = $('#video-controls-overlay');
-        const config = this.common_demo.config;
 
         if (video.paused) {
             // --- AZIONE: PLAY ---
             video.play();
             icon.removeClass('fa-circle-play').addClass('fa-circle-pause');
-            overlay.css('background', 'rgba(0,0,0,0)'); // Rendi l'overlay trasparente mentre va
-            icon.fadeOut(500); // Nascondi l'icona dopo un po'
+            overlay.css('background', 'rgba(0,0,0,0)');
+            icon.fadeOut(500);
 
-            // Se è la prima volta che premo Play, ARI parla e fa i gesti
-            if (!this.presentationStarted) {
-                this.presentationStarted = true;
-                if (config && config.degree_presentation.intro_text) {
-                    this.common_demo.say(config.degree_presentation.intro_text);
-                }
-            }
+            // AVVIA I GESTI
+            this.startVideoGestures();
+
         } else {
             // --- AZIONE: PAUSA ---
             video.pause();
             icon.removeClass('fa-circle-pause').addClass('fa-circle-play');
             overlay.css('background', 'rgba(0,0,0,0.3)');
             icon.show();
-            console.log("Presentazione in pausa.");
+
+            // FERMA I GESTI
+            this.stopVideoGestures();
         }
     }
 
-  	init() {
+    // Aggiungi questi metodi alla tua classe PageManager
+    startVideoGestures() {
+        // Evitiamo di sovrapporre più intervalli
+        if (this.moveInterval) clearInterval(this.moveInterval);
 
-    	this.common_demo.init(() => {
+        console.log("ARI inizia a gesticolare per il video.");
+        
+        // Esegue il primo gesto immediatamente
+        this.playRandomGesture();
 
-			const config = this.common_demo.config;
+        // Imposta il loop: un gesto ogni 8 secondi (puoi ridurlo a 6s se vuoi ARI più attivo)
+        this.moveInterval = setInterval(() => {
+            const video = $('#degree-presentation-video')[0];
+            
+            // Verifichiamo di nuovo se il video è in pausa (sicurezza extra)
+            if (video && !video.paused && !video.ended) {
+                this.playRandomGesture();
+            } else {
+                this.stopVideoGestures();
+            }
+        }, 9000); 
+    }
 
-			console.log("ARI pronto con configurazione caricata.");
+    stopVideoGestures() {
+        console.log("ARI torna in posizione di riposo.");
+        if (this.moveInterval) {
+            clearInterval(this.moveInterval);
+            this.moveInterval = null;
+        }
+        // Riporta ARI in una posizione neutra
+        this.playAnimation('start_ari');
+    }
 
-            if (config) {
-				const fullVideoPath = "../tools/assets/" + config.degree_presentation.video_path;
-				$('#video-source').attr('src', fullVideoPath);
-        		$('#degree-presentation-video')[0].load();
+    // function to make ARI execute one random gesture between the ones that are in the list defined previously
+    playRandomGesture() {
+        const gestures = this.common_demo.config.speech.available_gestures;
+        const randomIndex = Math.floor(Math.random() * gestures.length);
+        const selectedGesture = gestures[randomIndex];
+        this.playAnimation(selectedGesture);
+    }
+
+    init() {
+        this.common_demo.init(() => {
+            const config = this.common_demo.config;
+            const video = $('#degree-presentation-video')[0];
+
+            if (config && config.degree_presentation) {
+                const fullVideoPath = "../tools/assets/" + config.degree_presentation.video_path;
+                $('#video-source').attr('src', fullVideoPath);
+                video.load();
             }
 
-    });
-  }
+            // AGGIORNAMENTO BARRA IN TEMPO REALE
+            video.addEventListener('timeupdate', () => {
+                const percentage = (video.currentTime / video.duration) * 100;
+                $('#video-progress-bar').css('width', percentage + '%');
+            });
+
+            // RESET QUANDO IL VIDEO FINISCE
+            video.addEventListener('ended', () => {
+                $('#play-pause-icon').removeClass('fa-circle-pause').addClass('fa-circle-play').show();
+                $('#video-controls-overlay').css('background', 'rgba(0,0,0,0.3)');
+                $('#video-progress-bar').css('width', '0%');
+                this.stopVideoGestures();
+
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                }
+            });
+        });
+    }
 }
 
 
@@ -117,6 +168,54 @@ $(document).ready(function() {
     }).on("mouseleave", function() {
         if (!$('#degree-presentation-video')[0].paused) {
             $('#play-pause-icon').fadeOut(200);
+        }
+    });
+
+    $("#video-progress-container").on("click", function(e) {
+        const video = $('#degree-presentation-video')[0];
+        const container = $(this);
+        
+        // Calcoliamo la posizione del click rispetto alla larghezza totale della barra
+        const clickX = e.pageX - container.offset().left;
+        const width = container.width();
+        const seekTime = (clickX / width) * video.duration;
+
+        video.currentTime = seekTime;
+    });
+
+    // Dentro il tuo $(document).ready
+    $("#fullscreen-btn").on("click", function(e) {
+        e.stopPropagation();
+        const target = document.getElementById('fullscreen-target');
+        const icon = $(this).find('i');
+
+        // Controllo compatibile con Tablet (Chrome/Safari)
+        const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+
+        if (!isFullscreen) {
+            // Entra in Fullscreen
+            if (target.requestFullscreen) {
+                target.requestFullscreen();
+            } else if (target.webkitRequestFullscreen) { // Safari/iOS
+                target.webkitRequestFullscreen();
+            }
+            icon.removeClass('fa-expand').addClass('fa-compress');
+        } else {
+            // Esci dal Fullscreen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+            icon.removeClass('fa-compress').addClass('fa-expand');
+        }
+    });
+
+    // Listener per gestire il tasto "ESC" e aggiornare l'icona correttamente
+    document.addEventListener('fullscreenchange', () => {
+        const icon = $("#fullscreen-btn i");
+        if (!document.fullscreenElement) {
+            icon.removeClass('fa-compress').addClass('fa-expand');
         }
     });
 
