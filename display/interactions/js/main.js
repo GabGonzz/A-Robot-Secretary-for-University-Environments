@@ -88,7 +88,7 @@ $(document).ready(function() {
     // handshake interaction
   	$("#shake_hand_btn").on("click", function() {
 
-    	page_manager.playAnimation('shake_left');
+    	page_manager.playAnimation('shake_right');
 
 		// we set the dialogue to start one second after the beginning of the animation, 
 		// to make it more natural
@@ -116,7 +116,7 @@ $(document).ready(function() {
 	// not work properly
   	$("#wave_btn").on("click", function() {
 
-    	page_manager.playAnimation('wave_left');
+    	page_manager.playAnimation('wave');
 
 		// we set the dialogue to start two seconds after the beginning of the animation, 
 		// to make it more natural
