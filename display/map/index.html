@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ARI UNITN Points of Interest</title>
+    <title>ARI UNITN Map</title>
     <!-- style and fontawesome icons -->
     <link rel="stylesheet" href="../tools/style/style.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- script -->
     <script src="../tools/js/lib/jquery.min.js"></script>
+    <script src="../tools/js/lib/easeljs.min.js"></script>
     <script src="../tools/js/lib/roslib.min.js"></script>
+    <script src="../tools/js/lib/eventemitter3.min.js"></script>
+    <script src="../tools/js/lib/ros2d.min.js"></script>
 
     <script src="../tools/js/core.js"></script>
 
@@ -59,17 +62,25 @@
 
         <div class="menu-header">
             <h1 class="main-title">
-                <i class="fa-solid fa-location-dot" style="margin-right: 20px; color: #990000;"></i>
-                Points of Interest
+                <i class="fa-solid fa-map" style="margin-right: 20px; color: #990000;"></i>
+                Map
             </h1>
-            <p class="sub-title">Where do you want to go?</p>
+            <p class="sub-title">Touch the map to set a destination</p>
         </div>
 
         <div class="dock-button" id="dock-btn">
 
         </div>
 
-        <div class="poi-list" id="dynamic-poi-list">
+        <div class="map-wrapper">
+
+            <div id="map-canvas"></div>
+
+            <div class="map-controls">
+                <button id="zoom-in" class="zoom-btn"><i class="fa-solid fa-plus"></i></button>
+                <button id="zoom-out" class="zoom-btn"><i class="fa-solid fa-minus"></i></button>
+            </div>
+            
         </div>
 
         <div id="confirmation-modal" class="modal-overlay" style="display: none;">
@@ -84,16 +95,6 @@
 
             </div>
 
-        </div>
-
-        <div class="ai-interaction-container" style="text-align: center; margin-top: 30px;">
-            <p style="color: #444; font-family: sans-serif; margin-bottom: 20px; font-size: 40px; font-weight: bold;">
-                Or tell me where you want to go:
-            </p>
-
-            <div id="btn-poi-mic" class="control-btn" style="width: 100px; height: 100px; border-radius: 50%; background: #990000; display: flex; align-items: center; justify-content: center; margin: 0 auto; cursor: pointer; transition: all 0.3s;">
-                <i class="fa-solid fa-microphone" style="font-size: 43px; color: white;"></i>
-            </div>
         </div>
         
     </div>

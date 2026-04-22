@@ -20,8 +20,11 @@
     "logo_path": "unitn_logo.jpg",
     "news_file_path": "news.json",
     "points_of_interest": [
-        { "id": "poi_1", "name": "Laboratory", "keywords": ["laboratory", "lab", "robotics"] },
-        { "id": "poi_2", "name": "Classroom A205", "keywords": ["a205", "classroom a205", "a 205"] },
-        { "id": "poi_3", "name": "Classroom A105", "keywords": ["a105", "classroom a105", "a 105"] }
+        { "id": "poi_1", "name": "Laboratory", "ros_name": "lab_door", "keywords": ["laboratory", "lab", "robotics"] },
+        { "id": "poi_2", "name": "North East", "ros_name": "angolo_nord_est", "keywords": ["north east"] },
+        { "id": "poi_3", "name": "South East", "ros_name": "angolo_sud_est", "keywords": ["south east"] },
+        { "id": "poi_4", "name": "South West", "ros_name": "angolo_sud_ovest", "keywords": ["south west"] },
+        { "id": "poi_5", "name": "North West", "ros_name": "angolo_nord_ovest", "keywords": ["north west"] },
+        { "id": "poi_6", "name": "Docking Station", "ros_name": "ari_16c_dockstation", "keywords": ["docking station", "station", "dock", "docking"] }
     ]
 }

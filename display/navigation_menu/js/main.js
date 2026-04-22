@@ -41,31 +41,31 @@ $(document).ready(function() {
 
   	const page_manager = new PageManager();
 
-  	// Navigation to POI page
-  	$("#navigation_btn").on("click", function() {
+    // Back to the previous screen
+  	$(".control-btn[title='Back']").on("click", function() {
 
-    	window.location.href = "../unitn_navigation_menu/index.html";
+    	window.location.href = "../unitn_main_menu/index.html";
+
+  	});
+
+  	// Back to the home screen
+  	$(".control-btn[title='Home']").on("click", function() {
+
+    	window.location.href = "../unitn_main_menu/index.html";
+
+  	});
+
+  	// Navigation to POI page
+  	$("#poi_btn").on("click", function() {
+
+    	window.location.href = "../unitn_poi_list/index.html";
 
   	});
 
   	// Navigation to the cameras menu page
-  	$("#cam_btn").on("click", function() {
+  	$("#map_btn").on("click", function() {
 
-    	window.location.href = "../unitn_cam_menu/index.html";
-
-  	});
-
-  	// Navigation to the interactions menu page
-  	$("#interactions_btn").on("click", function() {
-
-    	window.location.href = "../unitn_interactions_menu/index.html";
-
-  	});
-
-  	// Navigation to the news page
-  	$("#news_btn").on("click", function() {
-
-    	window.location.href = "../unitn_news_list/index.html";
+    	window.location.href = "../unitn_map/index.html";
 
   	});
   

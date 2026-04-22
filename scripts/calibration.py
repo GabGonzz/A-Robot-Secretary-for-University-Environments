@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 import cv2
@@ -10,7 +10,11 @@ import tf.transformations
 from sensor_msgs.msg import Image, CompressedImage
 from cv_bridge import CvBridge
 from geometry_msgs.msg import PoseWithCovarianceStamped, PoseStamped
-
+import os
+import sys
+script_dir = os.path.dirname(os.path.realpath(__file__))
+if script_dir not in sys.path:
+    sys.path.insert(0, script_dir)
 from ArUco_data import ArUcos
 from camera_data import *
 
@@ -51,8 +55,8 @@ class AriArucoLocalizer:
         self.last_correction_time = 0
         self.cooldown_period = 3.0 
         
-        # We tell ARI to ignore markers more distant than 2.0 m, since they could be not reliable
-        self.max_dist = 2.0 
+        # We tell ARI to ignore markers more distant than 2.5 m, since they could be not reliable
+        self.max_dist = 2.5
 
         rospy.loginfo("--- LOCALIZZATORE ARUCO (FILTRO 1m) AVVIATO ---")
 

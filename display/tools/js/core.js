@@ -7,6 +7,8 @@ class CommonDemoARI {
         this.demo_language = "en_GB";
         this.ari_volume = 0;
 
+        this.isCharging = false;
+
         // ROS parameter for the volume (ROSLIB puro)
         this.volume_adjust = new ROSLIB.Param({
             ros: this.ros,
@@ -32,6 +34,18 @@ class CommonDemoARI {
             ros: this.ros,
             name: 'intents',
             messageType: 'pal_web_msgs/WebGoTo' // o il tipo corretto che usi
+        });
+
+        this.smart_nav_topic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/ui/navigation_request',
+            messageType: 'std_msgs/String'
+        });
+
+        this.relocalization_sub = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/initialpose',
+            messageType: 'geometry_msgs/PoseWithCovarianceStamped'
         });
     }
 
@@ -190,34 +204,32 @@ class CommonDemoARI {
     }
 
     subscribeBattery() {
-    // Salviamo il riferimento alla classe
-    const self = this;
+        // Salviamo il riferimento alla classe
+        const self = this;
 
-    const batteryTopic = new ROSLIB.Topic({
-        ros: this.ros,
-        name: '/power/battery_level',
-        messageType: 'std_msgs/Float32'
-    });
+        const batteryTopic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/power/battery_level',
+            messageType: 'std_msgs/Float32'
+        });
 
-    const chargingTopic = new ROSLIB.Topic({
-        ros: this.ros,
-        name: '/power/is_charging',
-        messageType: 'std_msgs/Bool'
-    });
+        const chargingTopic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/power/is_charging',
+            messageType: 'std_msgs/Bool'
+        });
 
-    let isCharging = false;
+        // Usiamo 'self' invece di 'this' per essere sicuri al 100%
+        chargingTopic.subscribe((msg) => {
+            self.isCharging = msg.data;
+            self.updateBatteryUI(null, self.isCharging);
+        });
 
-    // Usiamo 'self' invece di 'this' per essere sicuri al 100%
-    chargingTopic.subscribe((msg) => {
-        isCharging = msg.data;
-        self.updateBatteryUI(null, isCharging);
-    });
-
-    batteryTopic.subscribe((msg) => {
-        let level = Math.round(msg.data);
-        self.updateBatteryUI(level, isCharging);
-    });
-}
+        batteryTopic.subscribe((msg) => {
+            let level = Math.round(msg.data);
+            self.updateBatteryUI(level, self.isCharging);
+        });
+    }
 
     // Function to update the icon and the text
     updateBatteryUI(level, isCharging) {
@@ -248,5 +260,24 @@ class CommonDemoARI {
                 }
             }
         }
+    }
+
+    sendSmartNav(destinationId) {
+        const msg = new ROSLIB.Message({
+            data: destinationId
+        });
+        this.smart_nav_topic.publish(msg);
+        console.log("Comando Smart Nav inviato per: " + destinationId);
+    }
+
+    subscribeToCalibration(onCalibratedCallback) {
+        this.relocalization_sub.subscribe((msg) => {
+            console.log("Ricalibrazione ricevuta da ROS!");
+            
+            // Esegui una funzione di callback nell'UI se passata
+            if (onCalibratedCallback) {
+                onCalibratedCallback(msg);
+            }
+        });
     }
 }
