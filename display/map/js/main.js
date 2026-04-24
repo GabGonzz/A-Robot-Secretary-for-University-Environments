@@ -56,102 +56,186 @@ class PageManager{
 
         this.navMap.on('change', () => {
             const grid = this.navMap.currentGrid;
+            const stage = this.viewer.scene;
+
+            // Inizializzazione standard ROS
             this.viewer.scaleToDimensions(grid.width, grid.height);
             this.viewer.shift(grid.pose.position.x, grid.pose.position.y);
             this.baseScale = stage.scaleX;
 
+            // Salviamo le coordinate originarie perfette a zoom 1.0
+            this.baseX = stage.x;
+            this.baseY = stage.y;
+
+            // FONDAMENTALE: Calcoliamo il Bounding Box originale a Zoom 1.0
+            // Questo traccia esattamente dove si trovano i 4 bordi della mappa sullo schermo
+            let ptTL = grid.localToGlobal(0, 0);
+            let ptBR = grid.localToGlobal(grid.image.width, grid.image.height);
+            this.baseMapLeft = Math.min(ptTL.x, ptBR.x);
+            this.baseMapRight = Math.max(ptTL.x, ptBR.x);
+            this.baseMapTop = Math.min(ptTL.y, ptBR.y);
+            this.baseMapBottom = Math.max(ptTL.y, ptBR.y);
+
+            // Sincronizziamo subito le ancore della classe
+            this.initialStageX = stage.x;
+            this.initialStageY = stage.y;
+
             let isDragging = false;
-
-            // Pulizia listener precedenti
+            let startX, startY;
+            const canvasDiv = document.getElementById('map-canvas');
+            // Pulizia per sicurezza
             stage.off("stagemousedown");
-            stage.off("stagemousemove");
-            stage.off("stagemouseup");
 
-            // L'evento "pressmove" è molto più reattivo per il trascinamento su touchscreen
-            stage.on("stagemousedown", (e) => {
+            canvasDiv.addEventListener('touchstart', (e) => {
                 isDragging = false;
-                this.offset = { 
-                    stageX: stage.x, 
-                    stageY: stage.y,
-                    mouseX: e.stageX,
-                    mouseY: e.stageY
-                };
-                console.log(`[DEBUG-TOUCH] Down rilevato a: ${e.stageX}, ${e.stageY}`);
-            });
+                const touch = e.touches[0];
+                startX = touch.clientX;
+                startY = touch.clientY;
+                
+                // FONDAMENTALE: registra dove si trova la mappa nel momento in cui la tocchi
+                this.initialStageX = stage.x;
+                this.initialStageY = stage.y;
+            }, { passive: false });
 
-            stage.on("stagemousemove", (e) => {
-                if (this.offset) {
-                    let dx = e.stageX - this.offset.mouseX;
-                    let dy = e.stageY - this.offset.mouseY;
+            canvasDiv.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                
+                let dx = touch.clientX - startX;
+                let dy = touch.clientY - startY;
 
-                    // DEBUG: Vediamo se il browser manda dati mentre muovi il dito
-                    // Usiamo un contatore o stampiamo ogni tanto per non intasare la console
-                    if (Math.random() > 0.9) { 
-                        console.log(`[DEBUG-TOUCH] Moving... DeltaX: ${dx.toFixed(1)}, DeltaY: ${dy.toFixed(1)}`); 
-                    }
+                if (Math.abs(dx) > 5 || Math.abs(dy) > 5) isDragging = true;
 
-                    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
-                        if (!isDragging) console.log("[DEBUG-TOUCH] SOGLIA SUPERATA: Inizio trascinamento vero");
-                        isDragging = true;
-                    }
-
-                    if (isDragging) {
-                        let nextX = this.offset.stageX + dx;
-                        let nextY = this.offset.stageY + dy;
-
-                        // Calcolo limiti (Boundaries)
-                        const mapWidthOnScreen = grid.image.width * stage.scaleX;
-                        const mapHeightOnScreen = grid.image.height * stage.scaleY;
-                        const screenRegX = stage.regX * stage.scaleX;
-                        const screenRegY = stage.regY * stage.scaleY;
-
-                        let maxX = screenRegX + (mapWidthOnScreen - 800); 
-                        let minX = screenRegX;
-                        let maxY = screenRegY + (mapHeightOnScreen - 600);
-                        let minY = screenRegY;
-
-                        if (mapWidthOnScreen > 800) {
-                            if (nextX > maxX) nextX = maxX;
-                            if (nextX < minX) nextX = minX;
-                        }
-                        if (mapHeightOnScreen > 600) {
-                            if (nextY > maxY) nextY = maxY;
-                            if (nextY < minY) nextY = minY;
-                        }
-
-                        stage.x = nextX;
-                        stage.y = nextY;
-                    }
+                if (isDragging) {
+                    stage.x = this.initialStageX + dx;
+                    stage.y = this.initialStageY + dy;
+                    
+                    // Applichiamo i confini matematici!
+                    this.applyMapBoundaries(stage);
+                    
+                    stage.update();
                 }
-            });
+            }, { passive: false });
 
-            stage.on("stagemouseup", (event) => {
-                if (grid && !isDragging && this.offset) {
-                    const pos = grid.globalToLocal(event.stageX, event.stageY);
+            canvasDiv.addEventListener('touchend', (e) => {
+                if (!isDragging) {
+                    const touch = e.changedTouches[0];
+                    const rect = canvasDiv.getBoundingClientRect();
+                    
+                    // Coordinate del tocco rispetto al div
+                    const x = touch.clientX - rect.left;
+                    const y = touch.clientY - rect.top;
+                    
+                    // Coordinate globali dello stage
+                    const stageX = x * (canvasDiv.children[0].width / rect.width);
+                    const stageY = y * (canvasDiv.children[0].height / rect.height);
+                    
+                    // Coordinate locali della mappa (corrispondono ai pixel dell'immagine)
+                    const pos = grid.globalToLocal(stageX, stageY);
                     
                     if (pos.x >= 0 && pos.x <= grid.image.width && pos.y >= 0 && pos.y <= grid.image.height) {
-                        this.createMarker(event.stageX, event.stageY);
-                        this.selectedX = (pos.x * grid.scaleX) + grid.x;
-                        this.selectedY = -( (pos.y * grid.scaleY) + grid.y );
-                        console.log(`x: ${this.selectedX} y: ${this.selectedY}`)
-                        this.showConfirmation("this point on the map");
+                        
+                        // --- INIZIO NUOVA LOGICA DI CONTROLLO COLORE ---
+                        // Recuperiamo il contesto 2D del canvas generato da ROS2D
+                        const ctx = grid.image.getContext('2d');
+                        
+                        // Leggiamo i dati del singolo pixel cliccato (1x1 pixel)
+                        const pixelData = ctx.getImageData(Math.floor(pos.x), Math.floor(pos.y), 1, 1).data;
+                        
+                        // pixelData contiene un array [R, G, B, Alpha]
+                        const r = pixelData[0];
+                        const g = pixelData[1];
+                        const b = pixelData[2];
+                        
+                        // Consideriamo "spazio libero" solo i pixel molto chiari (Bianco)
+                        // Soglia a 240 per tollerare eventuali compressioni d'immagine
+                        const isFreeSpace = (r > 240 && g > 240 && b > 240);
+                        
+                        if (isFreeSpace) {
+                            // È bianco! Il robot può andarci
+                            this.createMarker(stageX, stageY);
+                            this.selectedX = (pos.x * grid.scaleX) + grid.x;
+                            this.selectedY = -((pos.y * grid.scaleY) + grid.y);
+                            this.showConfirmation("this point on the map");
+                        } else {
+                            // È grigio o nero! 
+                            console.log("[MAPPA] Tap ignorato: Area non navigabile (Ostacolo o Sconosciuto).");
+                            
+                            // OPZIONALE: Puoi far parlare ARI per avvisare l'utente
+                            // this.common_demo.say("I cannot go there.");
+                        }
+                        // --- FINE NUOVA LOGICA ---
                     }
                 }
-                this.offset = null;
-            });
+                isDragging = false;
+            }, { passive: false });
         });
+    }
+
+    applyMapBoundaries(stage) {
+        // Forza lo zoom minimo a 1.0 
+        if (this.zoomLevel < 1.0) {
+            this.zoomLevel = 1.0;
+            stage.scaleX = this.baseScale;
+            stage.scaleY = this.baseScale;
+        }
+
+        // Se lo zoom è 1.0, blocca rigidamente la mappa nella sua posizione originale
+        if (this.zoomLevel === 1.0) {
+            stage.x = this.baseX;
+            stage.y = this.baseY;
+            return;
+        }
+
+        const grid = this.navMap.currentGrid;
+
+        // Calcoliamo la posizione globale dei 4 angoli della mappa in questo esatto momento
+        let ptTL = grid.localToGlobal(0, 0);
+        let ptBR = grid.localToGlobal(grid.image.width, grid.image.height);
+
+        let mapLeft = Math.min(ptTL.x, ptBR.x);
+        let mapRight = Math.max(ptTL.x, ptBR.x);
+        let mapTop = Math.min(ptTL.y, ptBR.y);
+        let mapBottom = Math.max(ptTL.y, ptBR.y);
+
+        // --- CORREZIONE ASSE X ---
+        // Se il bordo sinistro è più a destra di quello originale, correggi indietro
+        if (mapLeft > this.baseMapLeft) {
+            stage.x -= (mapLeft - this.baseMapLeft);
+        } 
+        // Se il bordo destro è più a sinistra di quello originale, correggi in avanti
+        else if (mapRight < this.baseMapRight) {
+            stage.x += (this.baseMapRight - mapRight);
+        }
+
+        // --- CORREZIONE ASSE Y ---
+        // Se il bordo alto scende più giù di quello originale, correggi in su
+        if (mapTop > this.baseMapTop) {
+            stage.y -= (mapTop - this.baseMapTop);
+        } 
+        // Se il bordo basso sale più su di quello originale, correggi in giù
+        else if (mapBottom < this.baseMapBottom) {
+            stage.y += (this.baseMapBottom - mapBottom);
+        }
     }
 
     zoom(factor) {
         this.zoomLevel *= factor;
-        if(this.zoomLevel < 0.5) this.zoomLevel = 0.5;
+        
+        // Modificato per bloccare lo zoom a 1.0 (evita bordi neri)
+        if(this.zoomLevel < 1.0) this.zoomLevel = 1.0;
         if(this.zoomLevel > 5.0) this.zoomLevel = 5.0;
 
         const newScale = this.baseScale * this.zoomLevel;
         this.viewer.scene.scaleX = newScale;
         this.viewer.scene.scaleY = newScale;
 
-        // Se esiste un marker, aggiorniamo la sua scala inversa in tempo reale
+        // Riapplica i confini per ricentrare automaticamente la mappa se stiamo "zoomando indietro"
+        this.applyMapBoundaries(this.viewer.scene);
+
+        this.initialStageX = this.viewer.scene.x;
+        this.initialStageY = this.viewer.scene.y;
+
         if (this.goalMarker) {
             this.goalMarker.scaleX = 1 / newScale;
             this.goalMarker.scaleY = 1 / newScale;
@@ -164,23 +248,18 @@ class PageManager{
         this.removeMarker();
 
         this.goalMarker = new createjs.Shape();
-        
-        // Disegniamo il cerchio
         this.goalMarker.graphics
             .setStrokeStyle(2)
             .beginStroke("black")
             .beginFill("#990000")
-            .drawCircle(0, 0, 10); // Raggio base
+            .drawCircle(0, 0, 10);
         
-        // 1. TRASFORMAZIONE: coordinate corrette nello stage
+        // Convertiamo le coordinate stage (globali del canvas) in coordinate locali dello stage
+        // Questo compensa shift, rotazioni o zoom applicati al viewer
         let localPos = this.viewer.scene.globalToLocal(stageX, stageY);
         this.goalMarker.x = localPos.x;
         this.goalMarker.y = localPos.y;
 
-        // 2. SCALA INVERSA: Questa è la chiave.
-        // Dividiamo 1 per la scala attuale dello stage. 
-        // Se lo stage è scalato a 0.1, il marker viene scalato a 10, 
-        // annullando l'effetto "gigante".
         const currentScale = this.viewer.scene.scaleX;
         this.goalMarker.scaleX = 1 / currentScale;
         this.goalMarker.scaleY = 1 / currentScale;
