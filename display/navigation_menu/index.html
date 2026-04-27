@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ARI UNITN Head camera</title>
+    <title>ARI UNITN Navigation Menu</title>
 
-    <!-- style and fontawsome icons -->
-    <link rel="stylesheet" href="../tools/style/style.css"> 
+    <!-- style and fontawesome icons -->
+    <link rel="stylesheet" href="../tools/style/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- script -->
@@ -16,7 +16,7 @@
     <script src="js/main.js"></script>
 
 </head>
-<body class="camera-page">
+<body>
 
     <div class="status-bar">
 
@@ -61,15 +61,23 @@
 
         <div class="menu-header">
             <h1 class="main-title">
-                <i class="fa-solid fa-user" style="margin-right: 20px; color: #990000;"></i>
-                Head camera
+                <i class="fa-solid fa-location-arrow" style="margin-right: 20px; color: #990000;"></i>
+                Navigation Menu
             </h1>
         </div>
 
-        <div class="camera-stream-wrapper">
-            <div class="camera-feed-container" id="video_stream">
-                <img id="camera-feed" class="camera-canvas" src="" alt="Loading...">
+        <div class="btns-row" id="self_presentation_menu">
+
+            <div class="btn-ari btn-action" id="poi_btn">
+                <i class="fa-solid fa-location-dot"></i>
+                <div class="btn-label">Points of interest</div>
             </div>
+    
+            <div class="btn-ari btn-action" id="map_btn">
+                <i class="fa-solid fa-map"></i>
+                <div class="btn-label">Map</div>
+            </div>
+
         </div>
         
     </div>

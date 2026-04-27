@@ -1,10 +1,13 @@
 class CommonDemoARI {
     constructor(options) {
         this.ros = options.ros;
+        this.config = null;
         // RIMOSSO: this.pal_lib = new PalLib(); <-- Qui stava l'errore
         
         this.demo_language = "en_GB";
         this.ari_volume = 0;
+
+        this.isCharging = false;
 
         // ROS parameter for the volume (ROSLIB puro)
         this.volume_adjust = new ROSLIB.Param({
@@ -32,10 +35,22 @@ class CommonDemoARI {
             name: 'intents',
             messageType: 'pal_web_msgs/WebGoTo' // o il tipo corretto che usi
         });
+
+        this.smart_nav_topic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/ui/navigation_request',
+            messageType: 'std_msgs/String'
+        });
+
+        this.relocalization_sub = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/initialpose',
+            messageType: 'geometry_msgs/PoseWithCovarianceStamped'
+        });
     }
 
-    init(cb) {
-        // RIMOSSO: this.pal_lib.init(); <-- Non serve più
+    async init(cb) {
+        await this.loadGlobalConfig();
         
         $(".main-container").fadeIn("slow");
         
@@ -43,6 +58,29 @@ class CommonDemoARI {
         this.updateStatusBar();
         
         if (cb) cb();
+    }
+
+    // Nuova funzione per caricare i dati e applicare il logo
+    async loadGlobalConfig() {
+        try {
+            // Usiamo un percorso che funzioni da quasi ovunque. 
+            // Se le pagine sono a profondità diverse, potresti dover 
+            // passare il path come opzione, ma proviamo con quello relativo ai tools
+            const response = await fetch('../tools/assets/configuration.json');
+            this.config = await response.json();
+
+            console.log("Configurazione globale caricata nel core.");
+
+            // Applichiamo il logo automaticamente se esiste l'elemento nell'HTML
+            const logoElement = document.getElementById('main-logo');
+            if (logoElement && this.config.logo_path) {
+                // CORREZIONE QUI: Accedi a this.config.logo_path
+                const logoPath = "../tools/assets/" + this.config.logo_path;
+                logoElement.src = logoPath;
+            }
+        } catch (error) {
+            console.error("Errore caricamento config nel core:", error);
+        }
     }
 
     // NUOVA FUNZIONE SAY (Usa ROS invece di PalLib)
@@ -166,34 +204,32 @@ class CommonDemoARI {
     }
 
     subscribeBattery() {
-    // Salviamo il riferimento alla classe
-    const self = this;
+        // Salviamo il riferimento alla classe
+        const self = this;
 
-    const batteryTopic = new ROSLIB.Topic({
-        ros: this.ros,
-        name: '/power/battery_level',
-        messageType: 'std_msgs/Float32'
-    });
+        const batteryTopic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/power/battery_level',
+            messageType: 'std_msgs/Float32'
+        });
 
-    const chargingTopic = new ROSLIB.Topic({
-        ros: this.ros,
-        name: '/power/is_charging',
-        messageType: 'std_msgs/Bool'
-    });
+        const chargingTopic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/power/is_charging',
+            messageType: 'std_msgs/Bool'
+        });
 
-    let isCharging = false;
+        // Usiamo 'self' invece di 'this' per essere sicuri al 100%
+        chargingTopic.subscribe((msg) => {
+            self.isCharging = msg.data;
+            self.updateBatteryUI(null, self.isCharging);
+        });
 
-    // Usiamo 'self' invece di 'this' per essere sicuri al 100%
-    chargingTopic.subscribe((msg) => {
-        isCharging = msg.data;
-        self.updateBatteryUI(null, isCharging);
-    });
-
-    batteryTopic.subscribe((msg) => {
-        let level = Math.round(msg.data);
-        self.updateBatteryUI(level, isCharging);
-    });
-}
+        batteryTopic.subscribe((msg) => {
+            let level = Math.round(msg.data);
+            self.updateBatteryUI(level, self.isCharging);
+        });
+    }
 
     // Function to update the icon and the text
     updateBatteryUI(level, isCharging) {
@@ -224,5 +260,24 @@ class CommonDemoARI {
                 }
             }
         }
+    }
+
+    sendSmartNav(destinationId) {
+        const msg = new ROSLIB.Message({
+            data: destinationId
+        });
+        this.smart_nav_topic.publish(msg);
+        console.log("Comando Smart Nav inviato per: " + destinationId);
+    }
+
+    subscribeToCalibration(onCalibratedCallback) {
+        this.relocalization_sub.subscribe((msg) => {
+            console.log("Ricalibrazione ricevuta da ROS!");
+            
+            // Esegui una funzione di callback nell'UI se passata
+            if (onCalibratedCallback) {
+                onCalibratedCallback(msg);
+            }
+        });
     }
 }

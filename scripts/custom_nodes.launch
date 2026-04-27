@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="ari_utils" type="path_planner.py" name="smart_navigator" output="screen">
+        <param name="floor" value="floor_11" />
+    </node>
+
+    <node pkg="ari_utils" type="calibration.py" name="aruco_smart_mapper" output="screen" />
+</launch>

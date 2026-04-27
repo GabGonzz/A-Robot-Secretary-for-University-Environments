@@ -54,7 +54,7 @@
         </div>
 
         <div class="unitn-logo-container">
-            <img src="../tools/assets/unitn_logo.jpg" alt="Logo UNITN" class="unitn-logo">
+            <img id="main-logo" src="" alt="Logo UNITN" class="unitn-logo">
         </div>
 
         <div class="menu-header">
@@ -65,10 +65,11 @@
             <p class="sub-title">Where do you want to go?</p>
         </div>
 
-        <div class="poi-list">
-            <div class="poi-item" id="poi_1">Laboratory - Center</div>
-            <div class="poi-item" id="poi_2">Laboratory - Nord</div>
-            <div class="poi-item" id="poi_3">Laboratory - Door</div>
+        <div class="dock-button" id="dock-btn">
+
+        </div>
+
+        <div class="poi-list" id="dynamic-poi-list">
         </div>
 
         <div id="confirmation-modal" class="modal-overlay" style="display: none;">
@@ -83,6 +84,16 @@
 
             </div>
 
+        </div>
+
+        <div class="ai-interaction-container" style="text-align: center; margin-top: 30px;">
+            <p style="color: #444; font-family: sans-serif; margin-bottom: 20px; font-size: 40px; font-weight: bold;">
+                Or tell me where you want to go:
+            </p>
+
+            <div id="btn-poi-mic" class="control-btn" style="width: 100px; height: 100px; border-radius: 50%; background: #990000; display: flex; align-items: center; justify-content: center; margin: 0 auto; cursor: pointer; transition: all 0.3s;">
+                <i class="fa-solid fa-microphone" style="font-size: 43px; color: white;"></i>
+            </div>
         </div>
         
     </div>

@@ -2,7 +2,7 @@ class PageManager {
     constructor() {
         // IP Computation, useful to take tests locally
         // const robotIP = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
-        //                 ? "10.160.50.11" 
+        //                 ? "10.160.50.16" 
         //                 : window.location.hostname;
 
         // this.url = "ws://" + robotIP + ":9090";
@@ -42,7 +42,7 @@ class PageManager {
         console.log("Starting camera subscribe");
         const imageTopic = new ROSLIB.Topic({
             ros: this.ros,
-            name: '/torso_front_camera/color/image_raw/compressed',
+            name: '/front_fisheye_camera/image_raw/compressed',
             messageType: 'sensor_msgs/CompressedImage'
         });
 

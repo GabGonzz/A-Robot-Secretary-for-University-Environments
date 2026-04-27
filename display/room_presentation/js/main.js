@@ -4,7 +4,6 @@ class PageManager {
         // const robotIP = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
         //                 ? "10.160.50.11" 
         //                 : window.location.hostname;
-
         // this.url = "ws://" + robotIP + ":9090";
        	this.url = "ws://" + window.location.hostname + ":9090";
     	this.ros = new ROSLIB.Ros({
@@ -51,10 +50,21 @@ class PageManager {
   	}
 
   	init() {
+
+
     	this.common_demo.init(() => {
 
-			// ARI starts speaking immediately, since the video will play immediately too
-      		this.common_demo.say("Welcome to our laboratory! On the left, you can see the entrance, while throughout room you can observe many different types of robots. Also, on the right, there are many windows to keep this place bright.");
+			const config = this.common_demo.config;
+
+			console.log("ARI pronto con configurazione caricata.");
+
+            if (config && config.room_presentation.intro_text) {
+				const fullVideoPath = "../tools/assets/" + config.room_presentation.video_path;
+				$('#video-source').attr('src', fullVideoPath);
+        		$('#room-presentation-video')[0].load(); // Ricarica il video con il nuovo path
+				// ARI starts speaking immediately, since the video will play immediately too
+                this.common_demo.say(config.room_presentation.intro_text);
+            }
 
       		// we make ARI show the right, since it is the part of the laboratory that will be shown 
 			// first. The movement starts after one second, to synchronize it with the video.

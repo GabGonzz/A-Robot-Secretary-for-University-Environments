@@ -42,27 +42,20 @@ $(document).ready(function() {
   	const page_manager = new PageManager();
 
   	// Navigation to POI page
-  	$("#poi_btn").on("click", function() {
+  	$("#navigation_btn").on("click", function() {
 
-    	window.location.href = "../unitn_poi_list/index.html";
-
-  	});
-
-  	// Navigation to the Head camera page
-  	$("#front_cam_btn").on("click", function() {
-
-    	window.location.href = "../unitn_front_cam/index.html";
+    	window.location.href = "../unitn_navigation_menu/index.html";
 
   	});
 
-  	// Navigation to the torso camera page
-  	$("#torso_cam_btn").on("click", function() {
+  	// Navigation to the cameras menu page
+  	$("#cam_btn").on("click", function() {
 
-    	window.location.href = "../unitn_torso_cam/index.html";
+    	window.location.href = "../unitn_cam_menu/index.html";
 
   	});
 
-  	// Navigation to the interactions page
+  	// Navigation to the interactions menu page
   	$("#interactions_btn").on("click", function() {
 
     	window.location.href = "../unitn_interactions_menu/index.html";
