@@ -55,14 +55,14 @@ $(document).ready(function() {
 
   	});
 
-  	// Navigation to POI page
+  	// Navigation to the POI page
   	$("#poi_btn").on("click", function() {
 
     	window.location.href = "../unitn_poi_list/index.html";
 
   	});
 
-  	// Navigation to the cameras menu page
+  	// Navigation to the map page
   	$("#map_btn").on("click", function() {
 
     	window.location.href = "../unitn_map/index.html";

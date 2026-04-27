@@ -44,6 +44,7 @@ class PageManager{
             }
             this.startDockStatusWatcher();
 
+            // subscription to the aruco calibration topic
             this.common_demo.subscribeToCalibration((msg) => {
                 
             });
@@ -122,13 +123,14 @@ class PageManager{
         this.recognition.start();
     }
 
-    // Funzione per monitorare lo stato di ricarica e aggiornare il testo/stile del bottone
+    // Functiont to check if ARI is charging or not and changes the aspect of the dock/undock button accordingly
     startDockStatusWatcher() {
-        // Poiché core.js aggiorna common_demo.isCharging, controlliamo periodicamente
+        // Periodically check at the isCharging variable
         setInterval(() => {
             const btn = $("#dock-btn");
-            const isCharging = this.common_demo.isCharging; // Verificato dal topic /power/is_charging
+            const isCharging = this.common_demo.isCharging;
 
+            // check if ARI is charging or not and change the aspect of the dock/undock button accordingly
             if (isCharging) {
                 btn.html('<i class="fa-solid fa-plug-circle-minus"></i> UNDOCK');
                 btn.removeClass("dock-state-off").addClass("dock-state-on");
@@ -136,7 +138,7 @@ class PageManager{
                 btn.html('<i class="fa-solid fa-plug-circle-bolt"></i> DOCK ARI');
                 btn.removeClass("dock-state-on").addClass("dock-state-off");
             }
-        }, 500); // Aggiorna ogni mezzo secondo
+        }, 500); // updates every half a second
     }
 }
 
@@ -171,22 +173,21 @@ $(document).ready(function() {
         $("#confirmation-modal").fadeOut(300);
     });
 
-    // If the user confirms the decision, ARI will go to the destination with the user, however, currently
-    // the pop-up just disappears, later the logic will be implemented
+    // If the user confirms the decision, ARI will go to the destination selected by the user
     $("#confirm-yes").on("click", function() {
         console.log("Decisione confermata per: " + page_manager.selectedDestinationRosName);
         
-        // Invia il comando al core.js che lo pubblicherà su ROS
+        // Send the destination to the path planner node
         page_manager.common_demo.sendSmartNav(page_manager.selectedDestinationRosName);
         
-        // ARI comunica che sta partendo
         page_manager.common_demo.say("Okay, let's go!");
         
         $("#confirmation-modal").fadeOut(300);
     });
 
     $("#dock-btn").on("click", function() {
-        // Usiamo la variabile isCharging gestita dal core.js
+        // check whether ARI is charging or not and changes the dock/undock action to send accordingly. 
+        // This action is handled by the same node that performes path planning
         if (page_manager.common_demo.isCharging) {
             console.log("Invio UNDOCK_MANUAL");
             page_manager.common_demo.sendSmartNav("UNDOCK_MANUAL");

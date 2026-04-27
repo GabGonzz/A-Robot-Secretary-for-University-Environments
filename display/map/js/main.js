@@ -507,7 +507,8 @@ $(document).ready(function() {
 
     $("#dock-btn").on("click", function() {
         // If the user clicks on the dock/undock button, we first need to check if ARI is charging or 
-        // not by looking at the isCharging variable, adn then we act accordingly
+        // not by looking at the isCharging variable, and then we act accordingly. 
+        // This action is handled by the same node that performes path planning
         if (page_manager.common_demo.isCharging) {
             console.log("Sending UNDOCK_MANUAL");
             page_manager.common_demo.sendSmartNav("UNDOCK_MANUAL");
