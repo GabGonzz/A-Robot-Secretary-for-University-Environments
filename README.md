@@ -52,7 +52,7 @@ The repository is organized into two main components: the frontend interface and
 │   │       └── style.css
 │   ├── torso_cam
 │   └── torso_front_cam_infra
-└── scripts                     # ROS Backend (Python nodes and launch files)
+└── scripts                     # ROS Backend
     ├── README.md
     ├── ArUco_data.py
     ├── aruco_logger.py
