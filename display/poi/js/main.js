@@ -30,6 +30,7 @@ class PageManager{
 		// Vocal recognition configuration
         this.recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         this.recognition.lang = 'en-EN';
+        this.isWaitingForConfirmation = false;
         this.setupVoiceCommands();
 
         this.selectedDestinationId = null;
@@ -82,6 +83,37 @@ class PageManager{
         this.recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript.toLowerCase();
             console.log("ARI heard: " + transcript);
+            
+            // Check if we are waiting for the user to confirm the destination
+            if (this.isWaitingForConfirmation) {
+
+                // Check the user's response, if it's positive, then we will send the 
+                // selected destination to the navigation system, else we will cancel the action
+                if (transcript.includes("yes") || transcript.includes("yeah") || transcript.includes("sure")) {
+                    console.log("Decision confermed vocally to: " + this.selectedDestinationRosName);
+                    
+                    this.common_demo.sendSmartNav(this.selectedDestinationRosName);
+                    this.common_demo.say("Okay, let's go!");
+                    $("#confirmation-modal").fadeOut(300);
+                    
+                    // Reset the flag
+                    this.isWaitingForConfirmation = false;
+                } 
+                else if (transcript.includes("no") || transcript.includes("nope")) {
+                    console.log("Decision canceled vocally.");
+                    
+                    $("#confirmation-modal").fadeOut(300);
+                    
+                    // Reset the confirmation flag
+                    this.isWaitingForConfirmation = false;
+                } 
+                else {
+                    //If ARI did not recognise what the user said, it will give up listening 
+                    // and just show the confirmation modal
+                    this.common_demo.say("Please say yes or no.");
+                }
+                return;
+            }
 
             if (!this.common_demo.config || !this.common_demo.config.points_of_interest) {
                 console.error("Configurazione non ancora caricata");
@@ -117,6 +149,18 @@ class PageManager{
         $("#modal-text").text("Do you want to go to " + destination + "?");
         $("#confirmation-modal").fadeIn(300);
         this.common_demo.say("Do you want to go to " + destination + "?");
+
+        // Set the confirmation flag
+        this.isWaitingForConfirmation = true;
+
+        // Restart the microphone when ARI will be done talking
+        setTimeout(() => {
+            try {
+                this.startListening();
+            } catch(e) {
+                console.log("The microphone is already listening.");
+            }
+        }, 2500);
     }
 
     startListening() {
@@ -171,6 +215,7 @@ $(document).ready(function() {
     // If the user cancels the decision, the pop-up disappears
     $("#confirm-no").on("click", function() {
         $("#confirmation-modal").fadeOut(300);
+        page_manager.isWaitingForConfirmation = false;
     });
 
     // If the user confirms the decision, ARI will go to the destination selected by the user
@@ -181,6 +226,8 @@ $(document).ready(function() {
         page_manager.common_demo.sendSmartNav(page_manager.selectedDestinationRosName);
         
         page_manager.common_demo.say("Okay, let's go!");
+
+        page_manager.isWaitingForConfirmation = false;
         
         $("#confirmation-modal").fadeOut(300);
     });
