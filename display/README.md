@@ -3,7 +3,7 @@
 This section of the repository contains the implementation of ARI's web interface. The project is organized into a modular tree structure of directories, strictly adhering to PAL Robotics' conventions for ARI's onboard touchscreen interface.
 
 <p align="center">
-  <img src="../images/tesi_albero_frontend.drawio.png" alt="Frontend Structure Diagram" width="400">
+  <img src="../images/tesi_albero_frontend.drawio.png" alt="Frontend Structure Diagram" width="80%">
 </p>
 
 ---
@@ -66,7 +66,7 @@ The user application initiates with a **Start Screen** which, upon a touch inter
 
 *   **Navigation Menu:** Presents the available modalities to command the robot's movement. It links to two distinct views:
     *   **Map Page:** Renders an interactive, clickable 2D map allowing users to select exact target coordinates.
-    *   **POI Page:** Displays a structured list of predefined Points of Interest (POIs) across the university.
+    *   **POI Page:** Displays a structured list of predefined Points of Interest (POIs) across the university. This view also features a "microphone" action that captures the user's vocal input, extracts the desired destination, and initiates autonomous navigation once the user confirms their selection.
 *   **Interactions Menu:** Offers a collection of immediate robotic behaviors, such as pre-programmed physical gestures. It also acts as the gateway to two specialized interaction subsystems:
     *   **Speech Page:** Features a set of quick-access, static statements ARI can vocalize, alongside an interactive "microphone" action. Activating the microphone triggers the complete interaction pipeline: Speech-to-Text conversion, contextual system-prompt enrichment, LLM query processing, and final Text-to-Speech output. Crucially, ARI synchronizes real-time physical gestures with its vocalization to ensure a more fluid, lifelike, and natural conversation.
     *   **Presentation Pages:** Dedicated multimedia layouts that display specific video content while ARI delivers an oral presentation, fully utilizing synchronized speech and co-verbal gestures.
@@ -74,6 +74,6 @@ The user application initiates with a **Start Screen** which, upon a touch inter
 *   **News List:** A dynamic notice board displaying the latest events and official announcements from the University of Trento.
 
 <p align="center">
-  <img src="../images/poi_page.png" alt="POI Page" width="400">
-  <img src="../images/speech_page.png" alt="Speech Page" width="400">
+  <img src="../images/poi_page.png" alt="POI Page" width="49%">
+  <img src="../images/speech_page.png" alt="Speech Page" width="49%">
 </p>
