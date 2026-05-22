@@ -44,7 +44,7 @@ class AriSmartNavigator:
         if not self.all_checkpoints:
             rospy.logerr("ATTENZIONE: Lista POI vuota dopo il caricamento!")
         else:
-            rospy.loginfo(f"Caricati {len(self.all_checkpoints)} POI correttamente.")
+            rospy.loginfo(f"Loaded {len(self.all_checkpoints)} POI correctly.")
 
         # Setting the transform listener, that is ROS' system useful to handle coordinates 
         # and locating ARI in the map
@@ -307,6 +307,17 @@ class AriSmartNavigator:
             final_goal = GoToFloorPOIGoal(floor=self.floor, poi=target)
             self.nav_client.send_goal(final_goal)
             self.nav_client.wait_for_result()
+
+            # If the final destination is the dockstation, then we will also perform the 
+            # docking action when we will arrive there
+            if target == "ari_16c_dockstation":
+                # Check if we correctly arrived at the final destination and then execute docking
+                if self.nav_client.get_state() == actionlib.GoalStatus.SUCCEEDED:
+                    rospy.loginfo("Arrived at the station. Starting docking maneuver...")
+                    self.execute_physical_dock()
+                else:
+                    rospy.logerr("Failed to reach the final destination.")
+
         else:
             # Else, the final destination is a set of coordinates in the map, so we need to 
             # handle this navigation by calling the "execute_direct_move" function and giving it in 

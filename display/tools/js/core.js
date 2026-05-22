@@ -47,6 +47,18 @@ class CommonDemoARI {
             name: '/initialpose',
             messageType: 'geometry_msgs/PoseWithCovarianceStamped'
         });
+
+        this.eyes_topic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/robot_face/expression', 
+            messageType: 'hri_msgs/Expression' 
+        });
+
+        this.pupils_topic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/robot_face/look_at',
+            messageType: 'geometry_msgs/PointStamped'
+        });
     }
 
     async init(cb) {
@@ -56,6 +68,8 @@ class CommonDemoARI {
         
         this.volumeSlider();
         this.updateStatusBar();
+        this.setEyes("amazed");
+        this.lookStraight();
         
         if (cb) cb();
     }
@@ -279,5 +293,33 @@ class CommonDemoARI {
                 onCalibratedCallback(msg);
             }
         });
+    }
+
+    // Funzione per cambiare l'espressione/forma degli occhi
+    setEyes(shape_name) {
+        if (shape_name !== "") {
+            const msg = new ROSLIB.Message({
+                expression: shape_name // <-- MODIFICATO QUI
+            });
+            this.eyes_topic.publish(msg);
+            console.log("Eyes shape modified to: " + shape_name);
+        }
+    }
+
+    // Funzione per centrare lo sguardo (solo pupille)
+    lookStraight() {
+        const msg = new ROSLIB.Message({
+            header: {
+                frame_id: 'base_link' // Il riferimento è la base del robot
+            },
+            point: {
+                x: 2.0, // Guarda un punto a 2 metri in avanti
+                y: 0.0, // Perfettamente centrato (0 = né a destra né a sinistra)
+                z: 1.5  // Altezza di 1.5 metri (circa l'altezza visiva di una persona)
+            }
+        });
+        
+        this.pupils_topic.publish(msg);
+        console.log("Pupille centrate in avanti.");
     }
 }

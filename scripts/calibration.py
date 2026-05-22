@@ -58,7 +58,7 @@ class AriArucoLocalizer:
         # We tell ARI to ignore markers more distant than 2.5 m, since they could be not reliable
         self.max_dist = 2.5
 
-        rospy.loginfo("--- LOCALIZZATORE ARUCO (FILTRO 1m) AVVIATO ---")
+        rospy.loginfo("--- ARUCO LOCALIZER STARTED ---")
 
     def rvec_to_quaternion(self, rvec):
 
@@ -224,10 +224,10 @@ class AriArucoLocalizer:
             # We send the message with the new position to ARI and set the last correction time to now
             self.pub_myPos.publish(msg)
             self.last_correction_time = now
-            rospy.loginfo(">>> RICALIBRAZIONE FORZATA: ArUco %s (Distanza: %.2fm)", marker_id, dist)
+            rospy.loginfo(">>> RECALIBRATING: ArUco %s (Distance: %.2fm)", marker_id, dist)
 
         except Exception as e:
-            rospy.logwarn("Errore calibrazione: %s", e)
+            rospy.logwarn("Calibration error: %s", e)
 
 if __name__ == '__main__':
     try:
