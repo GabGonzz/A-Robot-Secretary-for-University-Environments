@@ -59,6 +59,10 @@ The repository is organized into two main components: the frontend interface and
     ├── calibration.py
     ├── camera_data.py
     ├── custom_nodes.launch
+    ├── map_parameters
+    │   ├── map.yaml
+    │   ├── mmap.yaml
+    │   └── submap_0.pgm
     └── path_planner.py
 ```
 ---
