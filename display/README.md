@@ -28,34 +28,34 @@ To maintain readability, standard `index.html` and `js/main.js` files are omitte
 
 ```text
 ├── README.md
-├── back_cam
-├── cam_menu
-├── degree_presentation
-├── front_cam
-├── front_fisheye_cam
-├── interactions
-├── map
-├── menu
-├── navigation_menu
-├── news
-│   └── news_detail.html            # Dedicated view for displaying full news articles
-├── poi
 ├── python_scripts
-│   └── update_news.py              # Utility to fetch remote updates and cache them locally in the configuration
-├── rear_fisheye_cam
-├── room_presentation
-├── speech
-├── start_screen
+│   └── update_news.py              # Utility to fetch remote updates and cache them locally in the configuration
 ├── tools
-│   ├── assets
-│   │   └── configuration.json      # Centralized project configurations and environmental data
-│   ├── js
-│   │   ├── core.js                 # Core ROS-Web abstraction layer
-│   │   └── lib                     # Third-party JavaScript libraries
-│   └── style
-│       └── style.css               # Global application stylesheet
-├── torso_cam
-└── torso_front_cam_infra
+│   ├── assets
+│   │   ├── configuration.json      # Centralized project configurations and environmental data
+│   ├── js
+│   │   ├── core.js                 # Core ROS-Web abstraction layer
+│   │   └── lib                     # Third-party JavaScript libraries
+│   └── style
+│       └── style.css               # Global application stylesheet
+├── unitn_back_cam
+├── unitn_cam_menu
+├── unitn_degree_presentation
+├── unitn_front_cam
+├── unitn_front_fisheye_cam
+├── unitn_infra_cam
+├── unitn_interactions_menu
+├── unitn_main_menu
+├── unitn_map
+├── unitn_navigation_menu
+├── unitn_news_list
+│   └── news_detail.html            # Dedicated view for displaying full news articles
+├── unitn_poi_list
+├── unitn_rear_fisheye_cam
+├── unitn_room_presentation
+├── unitn_speech_menu
+├── unitn_start_screen
+└── unitn_torso_cam
 ```
 
 ---

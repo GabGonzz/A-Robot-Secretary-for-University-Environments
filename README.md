@@ -24,34 +24,36 @@ This project explores the development and deployment of the PAL Robotics ARI rob
 The repository is organized into two main components: the frontend interface and the ROS backend scripts. The frontend directory is subdivided into modular folders, each containing an HTML file for the page layout and a JavaScript file that manages screen interactions, telemetry, and dynamically loads configurations.
 
 ```text
+├── Dockerfile
 ├── README.md
 ├── display                     # Frontend web interface components
-│   ├── README.md
-│   ├── back_cam
-│   ├── cam_menu
-│   ├── degree_presentation
-│   ├── front_cam
-│   ├── front_fisheye_cam
-│   ├── interactions
-│   ├── map
-│   ├── menu
-│   ├── navigation_menu
-│   ├── news
-│   ├── poi
-│   ├── python_scripts          # Script to fetch and update current news into the configuration files
-│   ├── rear_fisheye_cam
-│   ├── room_presentation
-│   ├── speech
-│   ├── start_screen
-│   ├── tools                   # Shared assets, styles, and core modules
-│   │   ├── assets
-│   │   ├── js
-│   │   │   ├── core.js         # Core script handling global configuration and rosbridge communication
-│   │   │   └── lib             # External JavaScript libraries
-│   │   └── style
-│   │       └── style.css
-│   ├── torso_cam
-│   └── torso_front_cam_infra
+│   ├── README.md
+│   ├── python_scripts          # Script to fetch and update current news into the configuration files
+│   ├── tools                   # Shared assets, styles, and core modules
+│   │   ├── assets
+│   │   ├── js
+│   │   │   ├── core.js         # Core script handling global configuration and rosbridge communication
+│   │   │   └── lib             # External JavaScript libraries
+│   │   └── style
+│   │       └── style.css
+│   ├── unitn_back_cam
+│   ├── unitn_cam_menu
+│   ├── unitn_degree_presentation
+│   ├── unitn_front_cam
+│   ├── unitn_front_fisheye_cam
+│   ├── unitn_infra_cam
+│   ├── unitn_interactions_menu
+│   ├── unitn_main_menu
+│   ├── unitn_map
+│   ├── unitn_navigation_menu
+│   ├── unitn_news_list
+│   ├── unitn_poi_list
+│   ├── unitn_rear_fisheye_cam
+│   ├── unitn_room_presentation
+│   ├── unitn_speech_menu
+│   ├── unitn_start_screen
+│   └── unitn_torso_cam
+├── entrypoint.sh
 └── scripts                     # ROS Backend
     ├── README.md
     ├── ArUco_data.py
@@ -166,19 +168,19 @@ The Dockerfile is based on the official ros:noetic-ros-base image. It installs e
 
 To build the image and compress it into an archive, run the following commands on your local machine:
 
-# Build the Docker image
+### Build the Docker image
 
 ```bash
 docker build -t ari_receptionist .
 ```
 
-# Save the image to a tarball archive
+### Save the image to a tarball archive
 
 ```bash
 docker save -o ari_receptionist.tar ari_receptionist
 ```
 
-# Transfer the archive to the ARI robot
+### Transfer the archive to the ARI robot
 Substitute `ARI-IP` with your ARI's IP:
 
 ```bash
@@ -189,7 +191,7 @@ scp ari_receptionist.tar pal@ARI-IP:/home/pal/
 
 Once the archive is transferred, connect to the ARI robot via SSH. The image must be loaded into the robot's local Docker daemon.
 
-# Load the Docker image from the tarball
+### Load the Docker image from the tarball
 
 ```bash
 sudo docker load -i /home/pal/ari_receptionist.tar
@@ -197,7 +199,7 @@ sudo docker load -i /home/pal/ari_receptionist.tar
 
 The container is executed using the `--network` host flag. This is a critical architectural choice: it allows the container to share the robot's native network interfaces, seamlessly hooking into the active `ROS_MASTER_URI` and accessing hardware sensors. Furthermore, PAL Robotics' native workspaces are mounted as read-only volumes (`-v /opt/pal:/opt/pal:ro`) to allow the custom nodes to interact with pre-existing ARI services without duplicating packages.
 
-# Run the container
+### Run the container
 
 ```bash
 sudo docker run -it --network host \
