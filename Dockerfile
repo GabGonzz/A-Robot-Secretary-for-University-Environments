@@ -2,11 +2,11 @@ FROM ros:noetic-ros-base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Installazione delle librerie di sistema e pacchetti ROS standard
 RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-opencv \
     python3-numpy \
+    python-is-python3 \
     ros-noetic-rosbridge-suite \
     ros-noetic-cv-bridge \
     ros-noetic-tf \
@@ -20,18 +20,15 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /ari_app
 
-# Copia l'interfaccia web e i nodi ROS all'interno del container
 COPY ./display ./display
 COPY ./scripts ./scripts
 
-# Rende eseguibili gli script Python
 RUN chmod +x ./scripts/*.py
 
-# Copia e imposta lo script di avvio
 COPY ./entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
-# Esponi le porte per l'interfaccia web (8080) e rosbridge (9090)
-EXPOSE 8080 9090
+# Esponiamo la nuova porta web e documentiamo l'uso della 9090 di host
+EXPOSE 8081 9090
 
 ENTRYPOINT ["/entrypoint.sh"]
